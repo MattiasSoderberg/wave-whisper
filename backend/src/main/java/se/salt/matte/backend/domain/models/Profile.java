@@ -1,25 +1,35 @@
 package se.salt.matte.backend.domain.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@Table(name = "profiles")
 public class Profile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    UUID id;
+    private UUID id;
 
-    String username;
+    @Column(unique = true)
+    private String username;
 
-    String avatarUrl;
+    private String avatarUrl;
 
-    LocalDate createdAt;
+    @Column(updatable = false)
+    private final LocalDateTime createdAt = LocalDateTime.now();
+
+    public Profile() {
+
+    }
+
+    public Profile(UUID id, String username, String avatarUrl) {
+        this.id = id;
+        this.username = username;
+        this.avatarUrl = avatarUrl;
+    }
 
     public UUID getId() {
         return id;
@@ -41,11 +51,7 @@ public class Profile {
         this.avatarUrl = avatarUrl;
     }
 
-    public LocalDate getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(LocalDate createdAt) {
-        this.createdAt = createdAt;
     }
 }
