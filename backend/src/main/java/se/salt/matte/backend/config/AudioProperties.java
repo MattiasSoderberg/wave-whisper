@@ -12,7 +12,7 @@ public class AudioProperties {
     private double secondsPerLetter = 0.1;
     private int bitsPerSample = 16;
     private int channels = 1;
-    private float gain = 0.8f;
+    private float gain = 0.5f;
     private float gainThreshold = 0.5f;
     private String fileExtension = ".wav";
     private int startFreq = 8000;
@@ -119,5 +119,9 @@ public class AudioProperties {
 
     public void setAllowedChars(String allowedChars) {
         this.allowedChars = allowedChars;
+    }
+
+    public int getBytesPerSample() {
+        return bitsPerSample / Byte.SIZE;
     }
 }
