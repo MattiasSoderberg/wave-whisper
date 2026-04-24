@@ -1,6 +1,5 @@
 package se.salt.matte.backend.web.controllers;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,9 +15,15 @@ import java.io.IOException;
 @RequestMapping("${spring.api.paths.messages}")
 public class MessageController {
 
-    MessageService service;
+    MessageService messageService;
 
-    public MessageController(MessageService service) {
-        this.service = service;
+    public MessageController(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @PostMapping("/decode")
+    public ResponseEntity<String> decode(@RequestParam("file") MultipartFile file) throws IOException {
+        String message = messageService.decode(file.getBytes());
+        return ResponseEntity.ok(message);
     }
 }
