@@ -13,26 +13,37 @@ public class Profile {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(unique = true, nullable = false)
     private String username;
 
     private String avatarUrl;
 
-    @Column(updatable = false)
-    private final LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime lastSync = LocalDateTime.now();
 
     public Profile() {
 
     }
 
-    public Profile(UUID id, String username, String avatarUrl) {
+    public Profile(UUID id, String email, String username, String avatarUrl) {
         this.id = id;
+        this.email = email;
         this.username = username;
         this.avatarUrl = avatarUrl;
     }
 
     public UUID getId() {
         return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getUsername() {
@@ -51,7 +62,11 @@ public class Profile {
         this.avatarUrl = avatarUrl;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public LocalDateTime getLastSync() {
+        return lastSync;
+    }
+
+    public void setLastSync(LocalDateTime lastSync) {
+        this.lastSync = lastSync;
     }
 }
