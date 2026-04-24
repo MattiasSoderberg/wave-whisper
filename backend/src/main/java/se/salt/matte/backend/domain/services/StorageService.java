@@ -28,12 +28,13 @@ public class StorageService {
                 .build();
     }
 
-    public String uploadAudio(byte[] audio) {
+    public String uploadAudio(byte[] audio, UUID conversationId) {
         String fileName = UUID.randomUUID() + audioProperties.getFileExtension();
+        String fullPath = conversationId + "/" + fileName;
 
         try {
             restClient.post()
-                    .uri("/" + fileName)
+                    .uri("/" + fullPath)
                     .contentType(MediaType.parseMediaType("audio/wav"))
                     .body(audio)
                     .retrieve()
@@ -43,6 +44,6 @@ public class StorageService {
             throw new RuntimeException("Failed to upload audio file", e);
         }
 
-        return fileName;
+        return fullPath;
     }
 }
