@@ -25,6 +25,10 @@ spring:
               - openid
               - profile
               - email
+  storage:
+    url: ${SUPABASE_URL}
+    key: ${SUPABASE_KEY}
+    bucket: ${SUPABASE_BUCKET}
   api:
     paths:
       base: /api
