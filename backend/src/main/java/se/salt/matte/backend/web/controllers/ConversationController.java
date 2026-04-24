@@ -1,5 +1,6 @@
 package se.salt.matte.backend.web.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.salt.matte.backend.domain.models.Conversation;
@@ -31,5 +32,11 @@ public class ConversationController {
     public ResponseEntity<List<Conversation>> getUserConversations(Principal principal) {
         List<Conversation> conversations = conversationService.getUserConversations(principal.getName());
         return ResponseEntity.ok(conversations);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteConversation(@PathVariable UUID id) {
+        conversationService.deleteConversation(id);
     }
 }
