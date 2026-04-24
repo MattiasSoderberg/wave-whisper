@@ -19,13 +19,19 @@ public class ConversationService {
     private final ConversationRepository conversationRepository;
     private final ProfileRepository profileRepository;
     private final MessageRepository messageRepository;
+    private final AudioSteganographyService audioSteganographyService;
+    private final StorageService storageService;
 
     public ConversationService(ConversationRepository conversationRepository,
                                ProfileRepository profileRepository,
-                               MessageRepository messageRepository) {
+                               MessageRepository messageRepository,
+                               AudioSteganographyService audioSteganographyService,
+                               StorageService storageService) {
         this.conversationRepository = conversationRepository;
         this.profileRepository = profileRepository;
         this.messageRepository = messageRepository;
+        this.audioSteganographyService = audioSteganographyService;
+        this.storageService = storageService;
     }
 
     public Conversation startConversation(String senderEmail, UUID receiverId) {
@@ -46,7 +52,7 @@ public class ConversationService {
 
     public void deleteConversation(UUID id) {
         Conversation conversation = conversationRepository.findById(id)
-                        .orElseThrow(ConversationNotFoundException::new);
+                .orElseThrow(ConversationNotFoundException::new);
         conversationRepository.delete(conversation);
     }
 
@@ -54,5 +60,20 @@ public class ConversationService {
         Conversation conversation = conversationRepository.findById(conversationId)
                 .orElseThrow(ConversationNotFoundException::new);
         return messageRepository.findByConversationOrderByCreatedAtAsc(conversation);
+    }
+
+    public Message encodeConversationMessage(UUID conversationId, String text, String email) {
+        Profile profile = profileRepository.findByEmail(email).orElseThrow(ProfileNotFoundException::new);
+        Conversation conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(ConversationNotFoundException::new);
+
+        byte[] audioData = audioSteganographyService.encode(text);
+        String fileName = storageService.uploadAudio(audioData, conversation.getId());
+
+        Message message = new Message();
+        message.setConversation(conversation);
+        message.setSender(profile);
+        message.setFilePath(fileName);
+        return messageRepository.save(message);
     }
 }
