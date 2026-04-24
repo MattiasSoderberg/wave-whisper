@@ -12,6 +12,7 @@ import jakarta.annotation.PostConstruct;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import se.salt.matte.backend.config.AudioProperties;
+import se.salt.matte.backend.exception.AudioDecodeException;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -170,7 +171,7 @@ public class AudioSteganographyService {
             dispatcher.run();
             return result.toString();
         } catch (UnsupportedAudioFileException e) {
-            throw new RuntimeException("Unsupported audio format: " + e.getMessage());
+            throw new AudioDecodeException();
         }
     }
 
