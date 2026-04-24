@@ -5,6 +5,7 @@ import se.salt.matte.backend.domain.models.Conversation;
 import se.salt.matte.backend.domain.models.Profile;
 import se.salt.matte.backend.domain.repositories.ConversationRepository;
 import se.salt.matte.backend.domain.repositories.ProfileRepository;
+import se.salt.matte.backend.exception.ConversationNotFoundException;
 import se.salt.matte.backend.exception.ProfileNotFoundException;
 
 import java.util.List;
@@ -36,5 +37,11 @@ public class ConversationService {
     public List<Conversation> getUserConversations(String email) {
         Profile profile = profileRepository.findByEmail(email).orElseThrow(ProfileNotFoundException::new);
         return conversationRepository.findByUserAOrUserBOrderByCreatedAtDesc(profile, profile);
+    }
+
+    public void deleteConversation(UUID id) {
+        Conversation conversation = conversationRepository.findById(id)
+                        .orElseThrow(ConversationNotFoundException::new);
+        conversationRepository.delete(conversation);
     }
 }
