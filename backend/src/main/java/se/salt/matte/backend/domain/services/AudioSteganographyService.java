@@ -37,9 +37,10 @@ public class AudioSteganographyService {
         String allowedChars = audioProperties.getAllowedChars();
         final int startFreq = audioProperties.getStartFreq();
         final int step = audioProperties.getFreqStep();
+        final int freqPadding = audioProperties.getFreqPadding();
 
         for (int i = 0; i < allowedChars.length(); i++) {
-            int freq = startFreq + (i * step);
+            int freq = startFreq + freqPadding + (i * step);
             CHAR_TO_FREQ.put(allowedChars.charAt(i), freq);
         }
     }
@@ -125,7 +126,9 @@ public class AudioSteganographyService {
                         float maxAmp = -1;
 
                         int startBin = (int) Math.floor((double) audioProperties.getStartFreq() * audioProperties.getBufferSize() / audioProperties.getSampleRate());
-                        int endBin = (int) Math.ceil((double) freq_limit * audioProperties.getBufferSize() / audioProperties.getSampleRate());
+                        int endBin = (int) Math.min(
+                                (double) (audioProperties.getBufferSize() / 2) - 1,
+                                Math.ceil(((double) freq_limit + audioProperties.getFreqPadding()) * audioProperties.getBufferSize() / audioProperties.getSampleRate()));
 
                         for (int i = startBin; i < endBin; i++) {
                             if (binEnergies[i] > maxAmp) {
@@ -135,11 +138,19 @@ public class AudioSteganographyService {
                         }
 
                         if (maxBin != -1 && maxAmp > audioProperties.getGainThreshold()) {
-                            double detectedFreq = fft.binToHz(maxBin, audioProperties.getSampleRate());
-                            if (detectedFreq >= audioProperties.getStartFreq() + 150) {
+                            float y1 = binEnergies[maxBin - 1];
+                            float y2 = binEnergies[maxBin];
+                            float y3 = binEnergies[maxBin + 1];
 
-                                char foundChar = findClosestChar(detectedFreq);
+                            float p = 0.5f * (y1 - y3) / (y1 - 2 * y2 + y3);
+                            double preciseBin = maxBin + p;
+                            double detectedFreq = preciseBin * (audioProperties.getSampleRate() / (double) audioProperties.getBufferSize());
+
+                            char foundChar = findClosestChar(detectedFreq);
+
+                            if (foundChar != '?') {
                                 result.append(foundChar);
+
                             }
                         }
 
