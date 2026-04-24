@@ -3,6 +3,7 @@ package se.salt.matte.backend.domain.services;
 import org.springframework.stereotype.Service;
 import se.salt.matte.backend.domain.models.Profile;
 import se.salt.matte.backend.domain.repositories.ProfileRepository;
+import se.salt.matte.backend.exception.ProfileNotFoundException;
 
 import java.util.List;
 
@@ -30,7 +31,8 @@ public class ProfileService {
                 });
     }
 
-    public List<Profile> searchProfiles(String query) {
-        return repository.findByUsernameContainingIgnoreCaseAndIdNot(query, null);
+    public List<Profile> searchProfiles(String query, String email) {
+        Profile profile = repository.findByEmail(email).orElseThrow(ProfileNotFoundException::new);
+        return repository.findByUsernameContainingIgnoreCaseAndIdNot(query, profile.getId());
     }
 }
