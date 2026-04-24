@@ -6,6 +6,7 @@ import se.salt.matte.backend.domain.models.Profile;
 import se.salt.matte.backend.domain.services.ProfileService;
 import se.salt.matte.backend.web.dto.ProfileSyncRequestDto;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -25,7 +26,7 @@ public class ProfileController {
     }
 
     @GetMapping("/search")
-    public List<Profile> searchProfiles(@RequestParam String query) {
-        return service.searchProfiles(query);
+    public List<Profile> searchProfiles(@RequestParam String query, Principal principal) {
+        return service.searchProfiles(query, principal.getName());
     }
 }
