@@ -33,8 +33,8 @@ public class ConversationService {
         ).orElseGet(() -> conversationRepository.save(tempConversation));
     }
 
-    public List<Conversation> getUserConversations(UUID profileId) {
-        Profile profile = profileRepository.findById(profileId).orElseThrow(ProfileNotFoundException::new);
+    public List<Conversation> getUserConversations(String email) {
+        Profile profile = profileRepository.findByEmail(email).orElseThrow(ProfileNotFoundException::new);
         return conversationRepository.findByUserAOrUserBOrderByCreatedAtDesc(profile, profile);
     }
 }
