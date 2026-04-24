@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.salt.matte.backend.domain.models.Conversation;
+import se.salt.matte.backend.domain.models.Message;
 import se.salt.matte.backend.domain.services.ConversationService;
 
 import java.security.Principal;
@@ -39,4 +40,11 @@ public class ConversationController {
     public void deleteConversation(@PathVariable UUID id) {
         conversationService.deleteConversation(id);
     }
+
+    @GetMapping("/{id}/messages")
+    public ResponseEntity<List<Message>> getConversationMessages(@PathVariable UUID id) {
+        List<Message> messages = conversationService.getConversationMessages(id);
+        return ResponseEntity.ok(messages);
+    }
+
 }
