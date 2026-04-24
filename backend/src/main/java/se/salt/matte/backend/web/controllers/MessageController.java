@@ -1,14 +1,10 @@
 package se.salt.matte.backend.web.controllers;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
 import se.salt.matte.backend.domain.services.MessageService;
 
-import java.io.IOException;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("${spring.api.paths.messages}")
@@ -20,9 +16,9 @@ public class MessageController {
         this.messageService = messageService;
     }
 
-    @PostMapping("/decode")
-    public ResponseEntity<String> decode(@RequestParam("file") MultipartFile file) throws IOException {
-        String message = messageService.decode(file.getBytes());
+    @PostMapping("/{id}/decode")
+    public ResponseEntity<String> decode(@PathVariable UUID id) {
+        String message = messageService.decode(id);
         return ResponseEntity.ok(message);
     }
 }
