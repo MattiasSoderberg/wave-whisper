@@ -2,8 +2,10 @@ package se.salt.matte.backend.domain.services;
 
 import org.springframework.stereotype.Service;
 import se.salt.matte.backend.domain.models.Conversation;
+import se.salt.matte.backend.domain.models.Message;
 import se.salt.matte.backend.domain.models.Profile;
 import se.salt.matte.backend.domain.repositories.ConversationRepository;
+import se.salt.matte.backend.domain.repositories.MessageRepository;
 import se.salt.matte.backend.domain.repositories.ProfileRepository;
 import se.salt.matte.backend.exception.ConversationNotFoundException;
 import se.salt.matte.backend.exception.ProfileNotFoundException;
@@ -16,11 +18,14 @@ public class ConversationService {
 
     private final ConversationRepository conversationRepository;
     private final ProfileRepository profileRepository;
+    private final MessageRepository messageRepository;
 
     public ConversationService(ConversationRepository conversationRepository,
-                               ProfileRepository profileRepository) {
+                               ProfileRepository profileRepository,
+                               MessageRepository messageRepository) {
         this.conversationRepository = conversationRepository;
         this.profileRepository = profileRepository;
+        this.messageRepository = messageRepository;
     }
 
     public Conversation startConversation(String senderEmail, UUID receiverId) {
@@ -43,5 +48,11 @@ public class ConversationService {
         Conversation conversation = conversationRepository.findById(id)
                         .orElseThrow(ConversationNotFoundException::new);
         conversationRepository.delete(conversation);
+    }
+
+    public List<Message> getConversationMessages(UUID conversationId) {
+        Conversation conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(ConversationNotFoundException::new);
+        return messageRepository.findByConversationOrderByCreatedAtAsc(conversation);
     }
 }
