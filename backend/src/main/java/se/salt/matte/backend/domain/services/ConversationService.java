@@ -22,8 +22,8 @@ public class ConversationService {
         this.profileRepository = profileRepository;
     }
 
-    public Conversation startConversation(UUID senderId, UUID receiverId) {
-        Profile sender = profileRepository.findById(senderId).orElseThrow(ProfileNotFoundException::new);
+    public Conversation startConversation(String senderEmail, UUID receiverId) {
+        Profile sender = profileRepository.findByEmail(senderEmail).orElseThrow(ProfileNotFoundException::new);
         Profile receiver = profileRepository.findById(receiverId).orElseThrow(ProfileNotFoundException::new);
 
         Conversation tempConversation = new Conversation(sender, receiver);
