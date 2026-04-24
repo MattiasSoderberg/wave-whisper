@@ -7,6 +7,7 @@ import se.salt.matte.backend.domain.repositories.ConversationRepository;
 import se.salt.matte.backend.domain.repositories.ProfileRepository;
 import se.salt.matte.backend.exception.ProfileNotFoundException;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,5 +31,10 @@ public class ConversationService {
         return conversationRepository.findByUserAAndUserB(
                 tempConversation.getUserA(), tempConversation.getUserB()
         ).orElseGet(() -> conversationRepository.save(tempConversation));
+    }
+
+    public List<Conversation> getUserConversations(UUID profileId) {
+        Profile profile = profileRepository.findById(profileId).orElseThrow(ProfileNotFoundException::new);
+        return conversationRepository.findByUserAOrUserBOrderByCreatedAtDesc(profile, profile);
     }
 }
