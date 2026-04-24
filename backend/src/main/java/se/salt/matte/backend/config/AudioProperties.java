@@ -16,8 +16,8 @@ public class AudioProperties {
     private float gainThreshold = 0.5f;
     private String fileExtension = ".wav";
     private int startFreq = 8000;
-    private int freqLimit = 11000;
-    private int freqStep = 40;
+    private int freqStep = 30;
+    private int freqPadding = 150;
     private String allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖabcdefghijklmnopqrstuvwxyzåäö0123456789!?. ";
 
     public int getSampleRate() {
@@ -97,20 +97,20 @@ public class AudioProperties {
         this.startFreq = startFreq;
     }
 
-    public int getFreqLimit() {
-        return freqLimit;
-    }
-
-    public void setFreqLimit(int freqLimit) {
-        this.freqLimit = freqLimit;
-    }
-
     public int getFreqStep() {
         return freqStep;
     }
 
     public void setFreqStep(int freqStep) {
         this.freqStep = freqStep;
+    }
+
+    public int getFreqPadding() {
+        return freqPadding;
+    }
+
+    public void setFreqPadding(int freqPadding) {
+        this.freqPadding = freqPadding;
     }
 
     public String getAllowedChars() {
