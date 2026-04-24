@@ -2,7 +2,6 @@ package se.salt.matte.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,13 +21,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/walls/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/echoes/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/walls").authenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/api/profiles/sync").permitAll() // Allow unauthenticated access to the sync endpoint)
+                        .requestMatchers("/api/profiles/search").permitAll() // Allow unauthenticated access to the search endpoint)
+                        .anyRequest().permitAll() // Allow all other requests without authentication
                 )
-                .oauth2Login(Customizer.withDefaults())
                 .build();
     }
 
