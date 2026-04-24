@@ -44,12 +44,24 @@ public class Message {
         return conversation;
     }
 
+    public void setConversation(Conversation conversation) {
+        this.conversation = conversation;
+    }
+
     public Profile getSender() {
         return sender;
     }
 
+    public void setSender(Profile sender) {
+        this.sender = sender;
+    }
+
     public String getFilePath() {
         return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
     public LocalDateTime getCreatedAt() {
