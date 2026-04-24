@@ -18,4 +18,12 @@ public class GlobalExceptionHandler {
         response.put("error", ex.getMessage());
         return response;
     }
+
+    @ExceptionHandler(AudioDecodeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleDecodeException(AudioDecodeException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", ex.getMessage());
+        return response;
+    }
 }
