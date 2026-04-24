@@ -54,6 +54,8 @@ public class ConversationController {
             @RequestBody EncodeMessageRequestDto dto,
             Principal principal) {
         Message message = conversationService.encodeConversationMessage(id, dto.text(), principal.getName());
+
+        return ResponseEntity.ok(message);
     }
 
 }
