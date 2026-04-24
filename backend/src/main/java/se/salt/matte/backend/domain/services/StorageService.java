@@ -46,4 +46,15 @@ public class StorageService {
 
         return fullPath;
     }
+
+    public byte[] downloadAudio(String fullPath) {
+        try {
+            return restClient.get()
+                    .uri("/" + fullPath)
+                    .retrieve()
+                    .body(byte[].class);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to download audio file", e);
+        }
+    }
 }
