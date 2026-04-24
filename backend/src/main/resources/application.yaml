@@ -34,3 +34,4 @@ spring:
       base: /api
       messages: ${spring.api.paths.base}/messages
       profiles: ${spring.api.paths.base}/profiles
+      conversations: ${spring.api.paths.base}/conversations
