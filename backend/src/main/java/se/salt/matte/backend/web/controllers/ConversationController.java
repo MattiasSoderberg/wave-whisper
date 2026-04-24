@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import se.salt.matte.backend.domain.models.Conversation;
 import se.salt.matte.backend.domain.models.Message;
 import se.salt.matte.backend.domain.services.ConversationService;
+import se.salt.matte.backend.web.dto.EncodeMessageRequestDto;
 
 import java.security.Principal;
 import java.util.List;
@@ -45,6 +46,14 @@ public class ConversationController {
     public ResponseEntity<List<Message>> getConversationMessages(@PathVariable UUID id) {
         List<Message> messages = conversationService.getConversationMessages(id);
         return ResponseEntity.ok(messages);
+    }
+
+    @PostMapping("/{id}/messages/encode")
+    public ResponseEntity<Message> encodeConversationMessage(
+            @PathVariable UUID id,
+            @RequestBody EncodeMessageRequestDto dto,
+            Principal principal) {
+        Message message = conversationService.encodeConversationMessage(id, dto.text(), principal.getName());
     }
 
 }
