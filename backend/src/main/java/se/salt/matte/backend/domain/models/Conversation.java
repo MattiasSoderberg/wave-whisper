@@ -1,8 +1,10 @@
 package se.salt.matte.backend.domain.models;
 
 import jakarta.persistence.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -22,6 +24,10 @@ public class Conversation {
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_b_id", nullable = false)
     Profile userB;
+
+    @OneToMany(mappedBy = "conversation", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<Message> messages;
 
     @Column(updatable = false)
     LocalDateTime createdAt = LocalDateTime.now();
