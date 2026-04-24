@@ -1,26 +1,17 @@
 package se.salt.matte.backend.domain.services;
 
 import org.springframework.stereotype.Service;
-import se.salt.matte.backend.domain.models.Message;
-import se.salt.matte.backend.domain.models.Profile;
-import se.salt.matte.backend.domain.repositories.MessageRepository;
-
-import java.util.UUID;
 
 @Service
 public class MessageService {
 
-    MessageRepository repository;
-    AudioSteganographyService audioSteganographyService;
+    private final AudioSteganographyService audioSteganographyService;
 
-    public MessageService(MessageRepository repository,
-                          AudioSteganographyService audioSteganographyService) {
-        this.repository = repository;
+    public MessageService(AudioSteganographyService audioSteganographyService) {
         this.audioSteganographyService = audioSteganographyService;
     }
 
-    public Message encodeAndSave(UUID conversationId, String text, Profile sender) {
-        byte[] audioByteArray = audioSteganographyService.encode(text);
-        return null;
+    public String decode(byte[] audioData) {
+        return audioSteganographyService.decode(audioData);
     }
 }
