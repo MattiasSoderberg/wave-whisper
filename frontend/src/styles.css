@@ -1,5 +1,89 @@
-
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
 @import "tailwindcss";
+
+:root {
+  /* Den heliga treenigheten av Matrix-färger */
+  --matrix-bg: #000000; /* Svart bakgrund */
+  --matrix-ui-dark: #113811; /* Mörkgrön för ramar/inaktiva element */
+  --matrix-glow: #00ff41; /* Lysande grön för text/signaler */
+
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+}
+
+@theme {
+  /* Tailwind v4 färg-mappning */
+  --color-matrix-bg: var(--matrix-bg);
+  --color-matrix-ui: var(--matrix-ui-dark);
+  --color-matrix-glow: var(--matrix-glow);
+
+  --font-mono: var(--font-mono);
+
+  /* Glöd-effekt för text och grafer */
+  --shadow-terminal-glow: 0 0 8px rgba(0, 255, 65, 0.4);
+}
+
+@layer base {
+  body {
+    @apply w-screen h-screen bg-matrix-bg text-matrix-glow font-mono min-h-screen relative overflow-hidden;
+  }
+
+  /* Statisk Scanline-effekt (Horisontella linjer) */
+  body::before {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    /* Skapar tunna svarta linjer som täcker 50% av höjden per 4px */
+    background: linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
+    background-size: 100% 4px;
+    z-index: 100; /* Ligger ovanpå allt */
+    pointer-events: none;
+    opacity: 0.8;
+  }
+
+  /* Subtil vinjett för att mörka ner kanterna (CRT-känsla) */
+  body::after {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: radial-gradient(
+      circle,
+      rgba(0, 0, 0, 0) 60%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+    z-index: 101;
+    pointer-events: none;
+  }
+}
+
+@layer components {
+  /* Ramar i mörkgrönt som i bilderna */
+  .matrix-frame {
+    @apply border border-matrix-ui bg-matrix-bg relative;
+  }
+
+  /* Lysande knappar */
+  .matrix-button {
+    @apply border border-matrix-glow bg-matrix-bg text-matrix-glow px-4 py-1 
+           uppercase text-xs tracking-[0.2em] shadow-terminal-glow
+           hover:bg-matrix-glow hover:text-matrix-bg transition-all duration-200
+           active:scale-95;
+  }
+
+  /* Terminal Input */
+  .matrix-input {
+    @apply bg-matrix-bg border border-matrix-ui p-2 text-matrix-glow 
+           placeholder:text-matrix-ui outline-none focus:border-matrix-glow 
+           focus:shadow-terminal-glow transition-all;
+  }
+}
 
 * {
   box-sizing: border-box;
@@ -14,4 +98,3 @@ body,
 body {
   margin: 0;
 }
-
