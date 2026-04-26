@@ -1,4 +1,4 @@
 package se.salt.matte.backend.web.dto;
 
-public record ProfileSyncRequestDto(String email, String name, String avatarUrl) {
+public record ProfileSyncRequestDto(String email, String username, String avatarUrl) {
 }

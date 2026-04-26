@@ -21,7 +21,7 @@ public class ProfileController {
 
     @PostMapping("/sync")
     public ResponseEntity<Profile> syncProfile(@RequestBody ProfileSyncRequestDto dto) {
-        Profile profile = service.syncProfile(dto.email(), dto.name(), dto.avatarUrl());
+        Profile profile = service.syncProfile(dto.email(), dto.username(), dto.avatarUrl());
         return ResponseEntity.ok(profile);
     }
 
