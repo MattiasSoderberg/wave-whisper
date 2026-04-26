@@ -21,10 +21,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/profiles/sync").permitAll() // Allow unauthenticated access to the sync endpoint)
+//                        .requestMatchers("/api/profiles/sync").permitAll() // Allow unauthenticated access to the sync endpoint)
                         .requestMatchers("/api/profiles/search").permitAll() // Allow unauthenticated access to the search endpoint)
-                        .anyRequest().permitAll() // Allow all other requests without authentication
+                        .anyRequest().authenticated() // Allow all other requests without authentication
                 )
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
     }
 
@@ -34,6 +35,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
