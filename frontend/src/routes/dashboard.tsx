@@ -1,22 +1,22 @@
 import Button from "#/components/Button";
 import { authClient } from "#/lib/auth-client";
 import { getSession } from "#/lib/auth.functions";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: async () => {
     const session = await getSession();
 
     if (!session) {
-      redirect({ to: "/" });
+      throw redirect({ to: "/" });
     }
-
-    // return { user: session.user };
   },
   component: Dashboard,
 });
 
 function Dashboard() {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col h-screen p-6 gap-6 max-w-6xl mx-auto">
       {/* Header */}
@@ -24,11 +24,11 @@ function Dashboard() {
         <span>WAVE_WHISPER</span>
         <div className="flex gap-4">
           <Button
-            onClick={() =>
-              authClient.signOut({
+            onClick={async () =>
+              await authClient.signOut({
                 fetchOptions: {
                   onSuccess: () => {
-                    redirect({ to: "/" });
+                    navigate({ to: "/" });
                   },
                 },
               })
@@ -89,21 +89,23 @@ function Dashboard() {
         </div>
 
         {/* Visualizer */}
-        <div className="col-span-4 matrix-frame p-4">
-          <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest">
-            Visualizer
-          </h2>
-          <div className="w-full h-full bg-matrix-ui/10 flex items-end gap-[1px]">
-            {/* Simulerad bars för wireframe */}
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div
-                key={i}
-                className="bg-matrix-glow w-full"
-                style={{ height: `${Math.random() * 100}%` }}
-              />
-            ))}
+        {1 + 1 == 1 && (
+          <div className="col-span-4 matrix-frame p-4">
+            <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest">
+              Visualizer
+            </h2>
+            <div className="w-full h-full bg-matrix-ui/10 flex items-end gap-[1px]">
+              {/* Simulerad bars för wireframe */}
+              {Array.from({ length: 20 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-matrix-glow w-full"
+                  style={{ height: `${Math.random() * 100}%` }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Player */}
         <div className="col-span-3 matrix-frame p-4 flex flex-col justify-between">
