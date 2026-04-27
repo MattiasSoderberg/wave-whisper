@@ -1,21 +1,90 @@
 import Button from "#/components/Button";
-import { authClient } from "#/lib/auth-client";
-import { getSession } from "#/lib/auth.functions";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import ConversationHistory from "#/components/ConversationHistory";
+import { conversationQueryOptions } from "#/lib/conversations";
+import { syncProfile } from "#/lib/profile";
+import { useAuth, useUser } from "@clerk/tanstack-react-start";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/dashboard")({
-  beforeLoad: async () => {
-    const session = await getSession();
-
-    if (!session) {
-      throw redirect({ to: "/" });
-    }
-  },
   component: Dashboard,
 });
 
 function Dashboard() {
+  const { getToken, isLoaded: authLoaded, isSignedIn, signOut } = useAuth();
+  const { user, isLoaded: userLoaded } = useUser();
+  const [isSynced, setIsSynced] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { data: conversations, isPending: conversationsLoading } = useQuery(
+    conversationQueryOptions(getToken),
+  );
+  console.log(
+    "Dashboard conversations data:",
+    conversations,
+    "Loading:",
+    conversationsLoading,
+  );
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (authLoaded && !isSignedIn) {
+      navigate({ to: "/" });
+    }
+
+    async function initMatrixSession() {
+      if (!authLoaded || !userLoaded || !user || isSynced) {
+        return;
+      }
+
+      try {
+        const token = await getToken({ template: "ww-template" });
+        if (!token) throw new Error("ACCESS_TOKEN_NOT_FOUND");
+
+        await syncProfile(getToken, {
+          email: user.primaryEmailAddress?.emailAddress || "",
+          username: user.fullName || "RECON_USER",
+          avatarUrl: user.imageUrl,
+        });
+
+        setIsSynced(true);
+      } catch (err) {
+        console.error("SYNC_ERROR:", err);
+        setError("FAILED_TO_INITIALIZE_PROFILE");
+      }
+    }
+
+    initMatrixSession();
+  }, [authLoaded, userLoaded, user, getToken, isSynced]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate({ to: "/" });
+  };
+
+  if (!authLoaded || !isSignedIn) {
+    return;
+  }
+
+  if (!authLoaded || !userLoaded || (user && !isSynced)) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-matrix-bg font-mono">
+        <div className="flex flex-col items-center gap-4">
+          <span className="text-matrix-bright animate-pulse tracking-[0.5em]">
+            INITIALIZING_SYSTEM_SYNC...
+          </span>
+          <div className="w-64 h-1 border border-matrix-ui">
+            <div
+              className="bg-matrix-bright h-full animate-[progress_2s_infinite]"
+              style={{ width: "45%" }}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) return <div className="text-red-500 p-10">{error}</div>;
 
   return (
     <div className="flex flex-col h-screen p-6 gap-6 max-w-6xl mx-auto">
@@ -23,49 +92,12 @@ function Dashboard() {
       <header className="flex justify-between items-center text-[10px] tracking-[0.4em] text-matrix-glow border-b border-matrix-ui pb-2">
         <span>WAVE_WHISPER</span>
         <div className="flex gap-4">
-          <Button
-            onClick={async () =>
-              await authClient.signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    navigate({ to: "/" });
-                  },
-                },
-              })
-            }
-          >
-            SignOut
-          </Button>
+          <Button onClick={handleSignOut}>SignOut</Button>
         </div>
       </header>
 
       {/* Signal History (Övre stora sektionen) */}
-      <section className="flex-1 matrix-frame p-4 overflow-hidden flex flex-col">
-        <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest uppercase">
-          Signal History
-        </h2>
-
-        <div className="flex-1 overflow-y-auto space-y-3 pt-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="flex justify-between items-center group hover:bg-matrix-ui/10 p-1"
-            >
-              <span className="text-sm tracking-tighter">
-                [0{i}. SENDER_ID_{i} - TIMESTAMP_{i} - {i}.2s]
-              </span>
-              <div className="flex gap-4 opacity-40 group-hover:opacity-100">
-                <button className="text-[10px] hover:text-white flex items-center gap-1">
-                  PLAY
-                </button>
-                <button className="text-[10px] hover:text-white flex items-center gap-1">
-                  DECODE
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <ConversationHistory conversations={conversations ? conversations : []} />
 
       {/* Nedre sektionen med Encoder, Visualizer & Player */}
       <div className="grid grid-cols-12 gap-6 h-48">
