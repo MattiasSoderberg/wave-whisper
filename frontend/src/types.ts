@@ -11,3 +11,10 @@ export type Conversation = {
   userB: Profile;
   createdAt: string;
 };
+
+export type Message = {
+  id: string;
+  sender: Profile;
+  filePath: string;
+  createdAt: string;
+};
