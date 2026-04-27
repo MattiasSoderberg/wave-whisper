@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import se.salt.matte.backend.domain.models.Conversation;
 import se.salt.matte.backend.domain.models.Message;
 import se.salt.matte.backend.domain.services.ConversationService;
+import se.salt.matte.backend.web.dto.ConversationRequestDto;
 import se.salt.matte.backend.web.dto.EncodeMessageRequestDto;
 
 import java.util.List;
@@ -24,9 +25,11 @@ public class ConversationController {
     }
 
     @PostMapping
-    public ResponseEntity<Conversation> startConversation(@AuthenticationPrincipal Jwt principal, @RequestParam UUID receiverId) {
+    public ResponseEntity<Conversation> startConversation(
+            @AuthenticationPrincipal Jwt principal,
+            @RequestBody ConversationRequestDto dto) {
         Conversation conversation = conversationService.startConversation(
-                principal.getClaimAsString("email"), receiverId
+                principal.getClaimAsString("email"), dto.receiverId()
         );
         return ResponseEntity.ok(conversation);
     }
