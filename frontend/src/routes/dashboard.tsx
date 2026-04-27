@@ -1,10 +1,11 @@
 import Button from "#/components/Button";
 import ConversationHistory from "#/components/ConversationHistory";
 import MessageList from "#/components/MessageList";
-import { fetchConversationMessages } from "#/lib/conversations";
+import { fetchConversationMessages, sendMessage } from "#/lib/conversations";
 import { syncProfile } from "#/lib/profile";
+import { cn } from "#/lib/utils";
 import { useAuth, useUser } from "@clerk/tanstack-react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -26,6 +27,7 @@ function Dashboard() {
   const { user, isLoaded: userLoaded } = useUser();
   const [isSynced, setIsSynced] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [inputText, setInputText] = useState("");
   const { conversationId } = Route.useSearch();
   const navigate = useNavigate();
   const { data: messages, isPending: messagesLoading } = useQuery({
@@ -33,6 +35,7 @@ function Dashboard() {
     queryFn: () => fetchConversationMessages(getToken, conversationId!),
     enabled: !!conversationId,
   });
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (authLoaded && !isSignedIn) {
@@ -69,6 +72,32 @@ function Dashboard() {
     navigate({ to: "/" });
   };
 
+  const mutation = useMutation({
+    mutationFn: async (text: string) =>
+      await sendMessage(getToken, conversationId!, text),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["messages", conversationId!],
+      });
+      setInputText("");
+    },
+  });
+
+  const handleSend = () => {
+    if (!inputText.trim() || !conversationId || mutation.isPending) return;
+
+    mutation.mutate(inputText);
+    setInputText(""); // Rensa efter sändning
+  };
+
+  // Låt användaren trycka Enter för att skicka
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   if (!authLoaded || !isSignedIn) {
     return;
   }
@@ -95,7 +124,6 @@ function Dashboard() {
 
   return (
     <div className="flex flex-col h-screen p-6 gap-4 max-w-[1600px] mx-auto overflow-hidden">
-      {/* Header - Kompakt och snygg */}
       <header className="flex justify-between items-center text-[10px] tracking-[0.4em] text-matrix-glow border-b border-matrix-ui pb-2 shrink-0">
         <span>WAVE_WHISPER // SESSION_ID: {user?.id.slice(0, 8)}</span>
         <div className="flex items-center gap-6">
@@ -106,18 +134,55 @@ function Dashboard() {
         </div>
       </header>
 
-      {/* Main Content Area */}
       <div className="flex-1 flex gap-6 min-h-0">
         {" "}
-        {/* min-h-0 är nyckeln för scroll */}
-        {/* 1. Vänster: Signal History & Search */}
         <div className="w-72 flex flex-col shrink-0 xl:w-96">
           <ConversationHistory activeId={conversationId} />
         </div>
-        {/* 2. Höger: Kommunikation & Verktyg */}
         <div className="flex-1 flex flex-col gap-6 min-h-0">
-          {/* Övre del: Chatten / Meddelanden */}
           <div className="flex-1 matrix-frame relative overflow-hidden flex flex-col">
+            <div className="col-span-5 matrix-frame p-4 relative">
+              <div className="flex flex-col h-full gap-3 mt-2">
+                <textarea
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  disabled={!conversationId || mutation.isPending}
+                  className="matrix-input w-full flex-1 text-xs resize-none bg-black/50 disabled:opacity-30"
+                  placeholder={
+                    conversationId
+                      ? "ENTER_TEXT_TO_ENCRYPT..."
+                      : "SELECT_SIGNAL_FIRST..."
+                  }
+                />
+
+                <div className="flex gap-2 items-center">
+                  <div className="flex-1 h-8 border border-matrix-ui flex items-center px-4 relative overflow-hidden bg-matrix-ui/5">
+                    <div
+                      className={cn(
+                        "bg-matrix-glow/30 h-full absolute block left-0 top-0 transition-all duration-1000 border-r border-matrix-glow",
+                        mutation.isPending
+                          ? "w-full animate-pulse"
+                          : "invisible w-[0%]",
+                      )}
+                    />
+                    <span className="z-10 text-[9px] tracking-[0.3em] text-matrix-bright">
+                      {mutation.isPending
+                        ? "UPLOADING_ENCRYPTED_PACKET..."
+                        : "ENCODER_READY"}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={handleSend}
+                    disabled={!conversationId || !inputText.trim()}
+                    className="matrix-btn-sm h-8 px-4 cursor-pointer disabled:opacity-30 disabled:cursor-default"
+                  >
+                    SEND
+                  </button>
+                </div>
+              </div>
+            </div>
             <h2 className="absolute top-0.5 left-1 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow z-10">
               ENCRYPTED_COMMUNICATION
             </h2>
@@ -136,9 +201,7 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* Nedre del: Encoder, Visualizer & Player (Verktygslådan) */}
           <div className="h-56 grid grid-cols-12 gap-6 shrink-0">
-            {/* Encoder */}
             <div className="col-span-5 matrix-frame p-4 relative">
               <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow">
                 ENCODER_UNIT
