@@ -1,4 +1,5 @@
 export type Profile = {
+  id: string;
   email: string;
   username: string;
   avatarUrl: string;
