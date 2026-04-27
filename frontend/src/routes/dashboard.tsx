@@ -28,6 +28,7 @@ function Dashboard() {
   const [isSynced, setIsSynced] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [inputText, setInputText] = useState("");
+  const [activeTrack, setActiveTrack] = useState<string | null>(null);
   const { conversationId } = Route.useSearch();
   const navigate = useNavigate();
   const { data: messages, isPending: messagesLoading } = useQuery({
@@ -72,6 +73,10 @@ function Dashboard() {
     navigate({ to: "/" });
   };
 
+  const handleSetActiveTrack = (filePath: string) => {
+    setActiveTrack(filePath);
+  };
+
   const mutation = useMutation({
     mutationFn: async (text: string) =>
       await sendMessage(getToken, conversationId!, text),
@@ -87,10 +92,9 @@ function Dashboard() {
     if (!inputText.trim() || !conversationId || mutation.isPending) return;
 
     mutation.mutate(inputText);
-    setInputText(""); // Rensa efter sändning
+    setInputText("");
   };
 
-  // Låt användaren trycka Enter för att skicka
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -192,6 +196,8 @@ function Dashboard() {
                   messages={messages || []}
                   loading={messagesLoading}
                   currentUserId={user?.id || ""}
+                  activeTrack={activeTrack}
+                  onSelectMessage={handleSetActiveTrack}
                 />
               ) : (
                 <div className="h-full flex items-center justify-center text-matrix-ui animate-pulse text-xs">
