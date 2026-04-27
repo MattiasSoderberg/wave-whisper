@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { type GetToken } from "@clerk/shared/types";
 import { createApiClient } from "./api-client";
-import type { Conversation } from "#/types";
+import type { Conversation, Message } from "#/types";
 
 export const fetchConversations = async (getToken: GetToken) => {
   const api = createApiClient(getToken);
@@ -19,6 +19,14 @@ export const createConversation = async (
     method: "POST",
     body: JSON.stringify({ receiverId }),
   });
+};
+
+export const fetchConversationMessages = async (
+  getToken: GetToken,
+  conversationId: string,
+) => {
+  const api = createApiClient(getToken);
+  return await api<Message[]>(`/api/conversations/${conversationId}/messages`);
 };
 
 export const conversationQueryOptions = (
