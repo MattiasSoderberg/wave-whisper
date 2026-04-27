@@ -23,9 +23,12 @@ public class MessageService {
         this.storageService = storageService;
     }
 
-    public String decode(UUID id) {
+    public byte[] getAudioData(UUID id) {
         Message message = messageRepository.findById(id).orElseThrow(MessageNotFoundException::new);
-        byte[] audioData = storageService.downloadAudio(message.getFilePath());
+        return storageService.downloadAudio(message.getFilePath());
+    }
+
+    public String decode(byte[] audioData) {
         return audioSteganographyService.decode(audioData);
     }
 }
