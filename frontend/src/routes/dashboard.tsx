@@ -1,3 +1,4 @@
+import AudioProcessor from "#/components/AudioProcessor";
 import Button from "#/components/Button";
 import ConversationHistory from "#/components/ConversationHistory";
 import MessageList from "#/components/MessageList";
@@ -207,51 +208,8 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="h-56 grid grid-cols-12 gap-6 shrink-0">
-            <div className="col-span-5 matrix-frame p-4 relative">
-              <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow">
-                ENCODER_UNIT
-              </h2>
-              <div className="flex flex-col h-full gap-3">
-                <textarea
-                  className="matrix-input w-full flex-1 text-xs resize-none bg-black/50"
-                  placeholder="ENTER_TEXT_TO_ENCRYPT..."
-                />
-                <div className="h-8 border border-matrix-ui flex items-center px-4 relative overflow-hidden bg-matrix-ui/5">
-                  <div className="bg-matrix-glow/20 h-full absolute left-0 top-0 w-[45%] border-r border-matrix-glow" />
-                  <span className="z-10 text-[9px] tracking-[0.3em] text-matrix-bright">
-                    PROCESSING_SIGNAL: 45%
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Visualizer */}
-            <div className="col-span-4 matrix-frame p-4 relative">
-              <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow">
-                OSCILLOSCOPE
-              </h2>
-              <div className="w-full h-full bg-matrix-ui/5 flex items-center justify-center">
-                {/* Här kommer WaveSurfer senare */}
-                <div className="text-[9px] text-matrix-ui">
-                  AWAITING_AUDIO_STREAM...
-                </div>
-              </div>
-            </div>
-
-            {/* Player */}
-            <div className="col-span-3 matrix-frame p-4 relative flex flex-col justify-between">
-              <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow">
-                TRANSCEIVER
-              </h2>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                <button className="matrix-btn-sm">PLAY</button>
-                <button className="matrix-btn-sm">STOP</button>
-              </div>
-              <button className="matrix-btn w-full mt-auto py-2 text-matrix-bright border-matrix-bright bg-matrix-glow/10 hover:bg-matrix-glow/20">
-                DECODE_INBOUND
-              </button>
-            </div>
+          <div className="col-span-7">
+            <AudioProcessor url={activeTrack} />
           </div>
         </div>
       </div>
