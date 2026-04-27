@@ -1,5 +1,8 @@
+import { profileQueryOptions } from "#/lib/profile";
 import type { Conversation } from "#/types";
-import React from "react";
+import { getToken } from "@clerk/tanstack-react-start";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import React, { useEffect } from "react";
 
 const Row = ({ conversation }: { conversation: Conversation }) => {
   return (
@@ -26,7 +29,25 @@ const ConversationHistory = ({
   conversations: Conversation[];
 }) => {
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [isFetching, setIsFetching] = React.useState(false);
+  const { data: searchResults, isFetching } = useQuery(
+    profileQueryOptions(getToken, searchQuery),
+  );
+
+  const mutation = useMutation({
+    mutationFn: async (userId: string) => {
+      // Här skulle du implementera logiken för att initiera en länkning mellan användare
+      // och starta en ny konversation. För nu loggar vi bara användar-ID:t.
+      console.log("Initializing link sequence with user ID:", userId);
+    },
+    onSuccess: () => {
+      // Här kan du lägga till logik som ska köras efter att mutation lyckats, t.ex. uppdatera konversationslistan.
+      console.log("Link sequence initialized successfully");
+    },
+  });
+
+  useEffect(() => {
+    console.log("Search results:", searchResults);
+  }, [searchResults]);
 
   return (
     <section className="flex-1 matrix-frame p-4 overflow-hidden flex flex-col">
@@ -43,6 +64,28 @@ const ConversationHistory = ({
           </div>
         )}
       </div>
+
+      {searchQuery.length > 2 && (
+        <div className="flex flex-col gap-2">
+          <header className="text-[9px] text-matrix-ui italic">
+            SEARCH_RESULTS:
+          </header>
+          {searchResults?.map((user) => (
+            <button
+              key={user.id}
+              onClick={() => mutation.mutate(user.id)}
+              className="text-left p-2 border border-transparent hover:border-matrix-glow hover:bg-matrix-glow/10 group"
+            >
+              <div className="text-[11px] text-matrix-bright">
+                {user.username}
+              </div>
+              <div className="text-[9px] text-matrix-ui group-hover:text-matrix-glow">
+                INITIALIZE_LINK_SEQUENCE
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
       <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest uppercase">
         Signal History
       </h2>
