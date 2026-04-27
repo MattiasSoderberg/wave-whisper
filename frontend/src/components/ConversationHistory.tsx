@@ -4,10 +4,10 @@ import {
 } from "#/lib/conversations";
 import { profileQueryOptions } from "#/lib/profile";
 import { cn } from "#/lib/utils";
-import type { Conversation } from "#/types";
 import { getToken } from "@clerk/tanstack-react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import React, { useEffect } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import React from "react";
 
 const ConversationHistory = ({ activeId }: { activeId?: string }) => {
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -18,6 +18,7 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
     conversationQueryOptions(getToken),
   );
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const mutation = useMutation({
     mutationFn: async (userId: string) => {
@@ -29,6 +30,26 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
     },
   });
 
+  const handleClick = (conversationId: string) => {
+    navigate({
+      from: "/dashboard",
+      to: "/dashboard",
+      search: { conversationId },
+    });
+  };
+
+  if (conversationsLoading) {
+    return (
+      <div className="flex flex-col gap-2 p-4">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="animate-pulse text-[10px] text-matrix-ui">
+            LOADING_CONVERSATIONS{i}...
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <section className="flex-1 matrix-frame p-4 overflow-hidden flex flex-col">
       <h2 className="absolute top-0.5 left-1 bg-matrix-bg px-2 text-xs tracking-widest uppercase">
@@ -37,8 +58,8 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
 
       <div className="relative mt-2">
         <input
-          className="w-full matrix-frame p-2 text-[10px] text-matrix-bright focus:outline-none focus:border-matrix-glow"
-          placeholder="SCAN_FOR_USERS..."
+          className="w-full matrix-input"
+          placeholder="SEARCH_USERS..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -78,10 +99,14 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
               key={conversation.id}
               className={cn(
                 "flex justify-between items-center group hover:bg-matrix-ui/40 p-1 group",
-                activeId === conversation.id && "bg-matrix-glow/20",
+                activeId === conversation.id &&
+                  "bg-matrix-glow/20 hover:bg-matrix-glow/20",
               )}
             >
-              <button className="text-[10px] group-hover:text-white flex items-center gap-1 cursor-pointer">
+              <button
+                className="text-[10px] group-hover:text-white flex items-center gap-1 cursor-pointer"
+                onClick={() => handleClick(conversation.id)}
+              >
                 <span className="text-sm tracking-tighter">
                   [0{conversation.id}. {conversation.userA.username} -{" "}
                   {conversation.createdAt}]
