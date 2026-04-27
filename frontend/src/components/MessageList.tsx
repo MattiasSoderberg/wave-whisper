@@ -7,7 +7,7 @@ interface MessageListProps {
   loading: boolean;
   currentUserId: string | undefined;
   activeTrack: string | null;
-  onSelectMessage: (filePath: string) => void;
+  onSelectMessage: (messageId: string) => void;
 }
 
 const MessageList = ({
@@ -63,7 +63,7 @@ const MessageList = ({
               <span
                 className={cn(
                   isMe ? "text-matrix-glow" : "text-matrix-ui",
-                  activeTrack === msg.filePath && "text-matrix-glow/60",
+                  activeTrack === msg.id && "text-matrix-glow/60",
                 )}
               >
                 {isMe ? "SOURCE_ORIGIN" : `SENDER: ${msg.sender.username}`}
@@ -71,7 +71,7 @@ const MessageList = ({
               <span
                 className={cn(
                   "text-matrix-ui/80",
-                  activeTrack === msg.filePath && "text-matrix-glow/40",
+                  activeTrack === msg.id && "text-matrix-glow/40",
                 )}
               >
                 [{msg.createdAt}]
@@ -79,13 +79,13 @@ const MessageList = ({
             </div>
 
             <div
-              onClick={() => msg.filePath && onSelectMessage(msg.filePath)}
+              onClick={() => msg.id && onSelectMessage(msg.id)}
               className={cn(
                 "px-3 py-2 border text-xs leading-relaxed",
                 isMe
                   ? "border-matrix-glow bg-matrix-glow/5 text-matrix-bright shadow-[inset_0_0_10px_rgba(0,255,65,0.05)]"
                   : "border-matrix-ui bg-matrix-ui/5 text-matrix-ui",
-                activeTrack === msg.filePath &&
+                activeTrack === msg.id &&
                   "border-matrix-glow shadow-glow text-matrix-glow/80",
               )}
             >
