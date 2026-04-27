@@ -1,4 +1,3 @@
-import type { DecodedMessage } from "#/types";
 import { type GetToken } from "@clerk/shared/types";
 
 export const fetchMessageWithAudioBlob = async (
