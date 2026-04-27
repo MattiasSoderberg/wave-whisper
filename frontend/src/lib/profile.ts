@@ -1,24 +1,12 @@
 import type { Profile } from "#/types";
-import { createServerFn } from "@tanstack/react-start";
+import { type GetToken } from "@clerk/shared/types";
+import { createApiClient } from "./api-client";
+import type { Po } from "@clerk/shared/index-B4_BYgBX";
 
-export const syncProfile = createServerFn({ method: "POST" })
-  .inputValidator((data: { token: string; profile: Profile }) => data)
-  .handler(async ({ data }) => {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/profiles/sync`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${data.token}`,
-        },
-        body: JSON.stringify(data.profile),
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to sync profile");
-    }
-
-    return response.json();
+export const syncProfile = async (getToken: GetToken, profile: Profile) => {
+  const api = createApiClient(getToken);
+  return await api("/api/profiles/sync", {
+    method: "POST",
+    body: JSON.stringify(profile),
   });
+};
