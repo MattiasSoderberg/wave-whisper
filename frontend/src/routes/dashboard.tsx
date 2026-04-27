@@ -1,13 +1,23 @@
 import Button from "#/components/Button";
 import ConversationHistory from "#/components/ConversationHistory";
-import { conversationQueryOptions } from "#/lib/conversations";
+import MessageList from "#/components/MessageList";
+import { fetchConversationMessages } from "#/lib/conversations";
 import { syncProfile } from "#/lib/profile";
 import { useAuth, useUser } from "@clerk/tanstack-react-start";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
+interface DashboardSearch {
+  conversationId?: string;
+}
+
 export const Route = createFileRoute("/dashboard")({
+  validateSearch: (search: Record<string, unknown>): DashboardSearch => {
+    return {
+      conversationId: search.conversationId as string | undefined,
+    };
+  },
   component: Dashboard,
 });
 
@@ -16,16 +26,13 @@ function Dashboard() {
   const { user, isLoaded: userLoaded } = useUser();
   const [isSynced, setIsSynced] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { data: conversations, isPending: conversationsLoading } = useQuery(
-    conversationQueryOptions(getToken),
-  );
-  console.log(
-    "Dashboard conversations data:",
-    conversations,
-    "Loading:",
-    conversationsLoading,
-  );
+  const { conversationId } = Route.useSearch();
   const navigate = useNavigate();
+  const { data: messages, isPending: messagesLoading } = useQuery({
+    queryKey: ["messages", conversationId],
+    queryFn: () => fetchConversationMessages(getToken, conversationId!),
+    enabled: !!conversationId,
+  });
 
   useEffect(() => {
     if (authLoaded && !isSignedIn) {
@@ -87,75 +94,95 @@ function Dashboard() {
   if (error) return <div className="text-red-500 p-10">{error}</div>;
 
   return (
-    <div className="flex flex-col h-screen p-6 gap-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <header className="flex justify-between items-center text-[10px] tracking-[0.4em] text-matrix-glow border-b border-matrix-ui pb-2">
-        <span>WAVE_WHISPER</span>
-        <div className="flex gap-4">
-          <Button onClick={handleSignOut}>SignOut</Button>
+    <div className="flex flex-col h-screen p-6 gap-4 max-w-[1600px] mx-auto overflow-hidden">
+      {/* Header - Kompakt och snygg */}
+      <header className="flex justify-between items-center text-[10px] tracking-[0.4em] text-matrix-glow border-b border-matrix-ui pb-2 shrink-0">
+        <span>WAVE_WHISPER // SESSION_ID: {user?.id.slice(0, 8)}</span>
+        <div className="flex items-center gap-6">
+          <span className="text-matrix-ui">OPERATOR: {user?.fullName}</span>
+          <Button onClick={handleSignOut} className="text-[9px] py-1">
+            TERMINATE_SESSION
+          </Button>
         </div>
       </header>
 
-      {/* Signal History (Övre stora sektionen) */}
-      <ConversationHistory conversations={conversations ? conversations : []} />
-
-      {/* Nedre sektionen med Encoder, Visualizer & Player */}
-      <div className="grid grid-cols-12 gap-6 h-48">
-        {/* Encoder */}
-        <div className="col-span-5 matrix-frame p-4">
-          <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest">
-            The Encoder
-          </h2>
-          <div className="flex flex-col h-full gap-2">
-            <input
-              className="matrix-input w-full text-xs"
-              placeholder="ENTER_TEXT_FOR_ENCODING..."
-            />
-            <div className="flex-1 border border-matrix-ui flex items-center px-4 relative overflow-hidden">
-              <div className="bg-matrix-ui/30 h-full absolute left-0 top-0 w-[45%]" />
-              <span className="z-10 text-[10px] tracking-widest">
-                ENCODING SIGNAL... 45%
-              </span>
-            </div>
-          </div>
+      {/* Main Content Area */}
+      <div className="flex-1 flex gap-6 min-h-0">
+        {" "}
+        {/* min-h-0 är nyckeln för scroll */}
+        {/* 1. Vänster: Signal History & Search */}
+        <div className="w-72 flex flex-col shrink-0 xl:w-96">
+          <ConversationHistory activeId={conversationId} />
         </div>
-
-        {/* Visualizer */}
-        {1 + 1 == 1 && (
-          <div className="col-span-4 matrix-frame p-4">
-            <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest">
-              Visualizer
+        {/* 2. Höger: Kommunikation & Verktyg */}
+        <div className="flex-1 flex flex-col gap-6 min-h-0">
+          {/* Övre del: Chatten / Meddelanden */}
+          <div className="flex-1 matrix-frame relative overflow-hidden flex flex-col">
+            <h2 className="absolute top-0.5 left-1 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow z-10">
+              DECRYPTED_COMMUNICATION
             </h2>
-            <div className="w-full h-full bg-matrix-ui/10 flex items-end gap-[1px]">
-              {/* Simulerad bars för wireframe */}
-              {Array.from({ length: 20 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-matrix-glow w-full"
-                  style={{ height: `${Math.random() * 100}%` }}
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+              {conversationId ? (
+                <MessageList
+                  messages={messages || []}
+                  loading={messagesLoading}
                 />
-              ))}
+              ) : (
+                <div className="h-full flex items-center justify-center text-matrix-ui animate-pulse text-xs">
+                  NO_MESSAGES_FOUND...
+                </div>
+              )}
             </div>
           </div>
-        )}
 
-        {/* Player */}
-        <div className="col-span-3 matrix-frame p-4 flex flex-col justify-between">
-          <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest">
-            The Player
-          </h2>
-          <div className="flex justify-around items-center">
-            <button className="text-matrix-ui hover:text-matrix-glow">
-              PLAY
-            </button>
-            <button className="text-matrix-ui hover:text-matrix-glow">
-              PAUSE
-            </button>
-            <button className="text-matrix-ui hover:text-matrix-glow">
-              STOP
-            </button>
+          {/* Nedre del: Encoder, Visualizer & Player (Verktygslådan) */}
+          <div className="h-56 grid grid-cols-12 gap-6 shrink-0">
+            {/* Encoder */}
+            <div className="col-span-5 matrix-frame p-4 relative">
+              <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow">
+                ENCODER_UNIT
+              </h2>
+              <div className="flex flex-col h-full gap-3">
+                <textarea
+                  className="matrix-input w-full flex-1 text-xs resize-none bg-black/50"
+                  placeholder="ENTER_TEXT_TO_ENCRYPT..."
+                />
+                <div className="h-8 border border-matrix-ui flex items-center px-4 relative overflow-hidden bg-matrix-ui/5">
+                  <div className="bg-matrix-glow/20 h-full absolute left-0 top-0 w-[45%] border-r border-matrix-glow" />
+                  <span className="z-10 text-[9px] tracking-[0.3em] text-matrix-bright">
+                    PROCESSING_SIGNAL: 45%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Visualizer */}
+            <div className="col-span-4 matrix-frame p-4 relative">
+              <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow">
+                OSCILLOSCOPE
+              </h2>
+              <div className="w-full h-full bg-matrix-ui/5 flex items-center justify-center">
+                {/* Här kommer WaveSurfer senare */}
+                <div className="text-[9px] text-matrix-ui">
+                  AWAITING_AUDIO_STREAM...
+                </div>
+              </div>
+            </div>
+
+            {/* Player */}
+            <div className="col-span-3 matrix-frame p-4 relative flex flex-col justify-between">
+              <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow">
+                TRANSCEIVER
+              </h2>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <button className="matrix-btn-sm">PLAY</button>
+                <button className="matrix-btn-sm">STOP</button>
+              </div>
+              <button className="matrix-btn w-full mt-auto py-2 text-matrix-bright border-matrix-bright bg-matrix-glow/10 hover:bg-matrix-glow/20">
+                DECODE_INBOUND
+              </button>
+            </div>
           </div>
-          <button className="matrix-btn w-full mt-2 !text-lg">DECODE</button>
         </div>
       </div>
     </div>
