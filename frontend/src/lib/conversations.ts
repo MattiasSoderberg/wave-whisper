@@ -10,9 +10,20 @@ export const fetchConversations = async (getToken: GetToken) => {
   return response;
 };
 
+export const createConversation = async (
+  getToken: GetToken,
+  receiverId: string,
+) => {
+  const api = createApiClient(getToken);
+  return await api<Conversation>("/api/conversations", {
+    method: "POST",
+    body: JSON.stringify({ receiverId }),
+  });
+};
+
 export const conversationQueryOptions = (getToken: GetToken) =>
   queryOptions({
     queryKey: ["conversations"],
     queryFn: () => fetchConversations(getToken),
-    staleTime: 1000 * 60 * 10, // 10 minutes
+    staleTime: 1000 * 60 * 120, // 120 minutes
   });
