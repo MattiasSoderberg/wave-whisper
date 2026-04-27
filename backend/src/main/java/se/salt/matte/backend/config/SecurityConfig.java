@@ -21,9 +21,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/api/profiles/sync").permitAll() // Allow unauthenticated access to the sync endpoint)
-                        .requestMatchers("/api/profiles/search").permitAll() // Allow unauthenticated access to the search endpoint)
-                        .anyRequest().authenticated() // Allow all other requests without authentication
+                        .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
