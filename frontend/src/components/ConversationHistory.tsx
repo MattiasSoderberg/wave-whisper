@@ -20,23 +20,22 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const mutation = useMutation({
-    mutationFn: async (userId: string) => {
-      await createConversation(getToken, userId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["conversations"] });
-      setSearchQuery("");
-    },
-  });
-
   const handleClick = (conversationId: string) => {
     navigate({
-      from: "/dashboard",
       to: "/dashboard",
-      search: { conversationId },
+      search: (prev) => ({ ...prev, conversationId }),
     });
   };
+
+  const mutation = useMutation({
+    mutationFn: async (userId: string) =>
+      await createConversation(getToken, userId),
+    onSuccess: (newConversation) => {
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      setSearchQuery("");
+      handleClick(newConversation.id);
+    },
+  });
 
   if (conversationsLoading) {
     return (
