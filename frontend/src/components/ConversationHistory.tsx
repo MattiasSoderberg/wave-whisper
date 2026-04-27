@@ -1,7 +1,8 @@
+import { createConversation } from "#/lib/conversations";
 import { profileQueryOptions } from "#/lib/profile";
 import type { Conversation } from "#/types";
 import { getToken } from "@clerk/tanstack-react-start";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useEffect } from "react";
 
 const Row = ({ conversation }: { conversation: Conversation }) => {
@@ -32,22 +33,17 @@ const ConversationHistory = ({
   const { data: searchResults, isFetching } = useQuery(
     profileQueryOptions(getToken, searchQuery),
   );
+  const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async (userId: string) => {
-      // Här skulle du implementera logiken för att initiera en länkning mellan användare
-      // och starta en ny konversation. För nu loggar vi bara användar-ID:t.
-      console.log("Initializing link sequence with user ID:", userId);
+      await createConversation(getToken, userId);
     },
     onSuccess: () => {
-      // Här kan du lägga till logik som ska köras efter att mutation lyckats, t.ex. uppdatera konversationslistan.
-      console.log("Link sequence initialized successfully");
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      setSearchQuery("");
     },
   });
-
-  useEffect(() => {
-    console.log("Search results:", searchResults);
-  }, [searchResults]);
 
   return (
     <section className="flex-1 matrix-frame p-4 overflow-hidden flex flex-col">
@@ -80,14 +76,14 @@ const ConversationHistory = ({
                 {user.username}
               </div>
               <div className="text-[9px] text-matrix-ui group-hover:text-matrix-glow">
-                INITIALIZE_LINK_SEQUENCE
+                INITIALIZE_CONVERSATION
               </div>
             </button>
           ))}
         </div>
       )}
       <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest uppercase">
-        Signal History
+        CONVERSATION_HISTORY
       </h2>
 
       <ul className="flex-1 overflow-y-auto space-y-3 pt-4">
