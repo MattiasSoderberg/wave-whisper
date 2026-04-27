@@ -6,7 +6,6 @@ import type { Conversation } from "#/types";
 export const fetchConversations = async (getToken: GetToken) => {
   const api = createApiClient(getToken);
   const response = await api<Conversation[]>("/api/conversations");
-  console.log("Fetch conversations response:", response);
 
   return response;
 };
