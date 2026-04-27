@@ -2,13 +2,14 @@ package se.salt.matte.backend.web.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import se.salt.matte.backend.domain.models.Conversation;
 import se.salt.matte.backend.domain.models.Message;
 import se.salt.matte.backend.domain.services.ConversationService;
 import se.salt.matte.backend.web.dto.EncodeMessageRequestDto;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,16 +24,16 @@ public class ConversationController {
     }
 
     @PostMapping
-    public ResponseEntity<Conversation> startConversation(Principal principal, @RequestParam UUID receiverId) {
+    public ResponseEntity<Conversation> startConversation(@AuthenticationPrincipal Jwt principal, @RequestParam UUID receiverId) {
         Conversation conversation = conversationService.startConversation(
-                principal.getName(), receiverId
+                principal.getClaimAsString("email"), receiverId
         );
         return ResponseEntity.ok(conversation);
     }
 
     @GetMapping
-    public ResponseEntity<List<Conversation>> getUserConversations(Principal principal) {
-        List<Conversation> conversations = conversationService.getUserConversations(principal.getName());
+    public ResponseEntity<List<Conversation>> getUserConversations(@AuthenticationPrincipal Jwt principal) {
+        List<Conversation> conversations = conversationService.getUserConversations(principal.getClaimAsString("email"));
         return ResponseEntity.ok(conversations);
     }
 
@@ -52,8 +53,11 @@ public class ConversationController {
     public ResponseEntity<Message> encodeConversationMessage(
             @PathVariable UUID id,
             @RequestBody EncodeMessageRequestDto dto,
-            Principal principal) {
-        Message message = conversationService.encodeConversationMessage(id, dto.text(), principal.getName());
+            @AuthenticationPrincipal Jwt principal) {
+        Message message = conversationService.encodeConversationMessage(
+                id,
+                dto.text(),
+                principal.getClaimAsString("email"));
 
         return ResponseEntity.ok(message);
     }
