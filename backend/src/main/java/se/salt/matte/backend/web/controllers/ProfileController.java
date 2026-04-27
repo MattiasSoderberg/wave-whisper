@@ -1,12 +1,13 @@
 package se.salt.matte.backend.web.controllers;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.salt.matte.backend.domain.models.Profile;
 import se.salt.matte.backend.domain.services.ProfileService;
 import se.salt.matte.backend.web.dto.ProfileSyncRequestDto;
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -26,7 +27,7 @@ public class ProfileController {
     }
 
     @GetMapping("/search")
-    public List<Profile> searchProfiles(@RequestParam String query, Principal principal) {
-        return service.searchProfiles(query, principal.getName());
+    public List<Profile> searchProfiles(@RequestParam String query, @AuthenticationPrincipal Jwt principal) {
+        return service.searchProfiles(query, principal.getClaimAsString("email"));
     }
 }
