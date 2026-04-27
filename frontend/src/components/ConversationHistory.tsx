@@ -25,8 +25,24 @@ const ConversationHistory = ({
 }: {
   conversations: Conversation[];
 }) => {
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [isFetching, setIsFetching] = React.useState(false);
+
   return (
     <section className="flex-1 matrix-frame p-4 overflow-hidden flex flex-col">
+      <div className="relative">
+        <input
+          className="w-full bg-black border border-matrix-ui p-2 text-[10px] text-matrix-bright focus:outline-none focus:border-matrix-glow"
+          placeholder="SCAN_FOR_USERS..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {isFetching && (
+          <div className="absolute right-2 top-2 animate-spin text-matrix-glow">
+            /
+          </div>
+        )}
+      </div>
       <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest uppercase">
         Signal History
       </h2>
