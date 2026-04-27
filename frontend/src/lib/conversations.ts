@@ -21,9 +21,13 @@ export const createConversation = async (
   });
 };
 
-export const conversationQueryOptions = (getToken: GetToken) =>
+export const conversationQueryOptions = (
+  getToken: GetToken,
+  enabled: boolean = true,
+) =>
   queryOptions({
     queryKey: ["conversations"],
     queryFn: () => fetchConversations(getToken),
+    enabled,
     staleTime: 1000 * 60 * 120, // 120 minutes
   });
