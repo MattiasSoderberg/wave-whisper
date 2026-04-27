@@ -119,17 +119,18 @@ function Dashboard() {
           {/* Övre del: Chatten / Meddelanden */}
           <div className="flex-1 matrix-frame relative overflow-hidden flex flex-col">
             <h2 className="absolute top-0.5 left-1 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow z-10">
-              DECRYPTED_COMMUNICATION
+              ENCRYPTED_COMMUNICATION
             </h2>
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
               {conversationId ? (
                 <MessageList
                   messages={messages || []}
                   loading={messagesLoading}
+                  currentUserId={user?.id || ""}
                 />
               ) : (
                 <div className="h-full flex items-center justify-center text-matrix-ui animate-pulse text-xs">
-                  NO_MESSAGES_FOUND...
+                  NO_CONVERSATION_SELECTED...
                 </div>
               )}
             </div>
