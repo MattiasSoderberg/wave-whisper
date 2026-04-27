@@ -1,20 +1,24 @@
 import React, { useEffect, useRef } from "react";
 import type { Message } from "#/types";
+import { cn } from "#/lib/utils";
 
 interface MessageListProps {
   messages: Message[];
   loading: boolean;
   currentUserId: string | undefined;
+  activeTrack: string | null;
+  onSelectMessage: (filePath: string) => void;
 }
 
 const MessageList = ({
   messages,
   loading,
   currentUserId,
+  activeTrack,
+  onSelectMessage,
 }: MessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Scrolla till botten när nya meddelanden kommer
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -50,26 +54,40 @@ const MessageList = ({
         return (
           <div
             key={msg.id}
-            className={`flex flex-col max-w-[85%] ${isMe ? "self-end items-end" : "self-start items-start"}`}
+            className={cn(
+              "flex flex-col max-w-[85%] cursor-pointer",
+              isMe ? "self-end items-end" : "self-start items-start",
+            )}
           >
-            {/* Metadata (Sender & Time) */}
             <div className="flex gap-2 mb-1 text-[8px] tracking-widest uppercase">
-              <span className={isMe ? "text-matrix-glow" : "text-matrix-ui"}>
+              <span
+                className={cn(
+                  isMe ? "text-matrix-glow" : "text-matrix-ui",
+                  activeTrack === msg.filePath && "text-matrix-glow/60",
+                )}
+              >
                 {isMe ? "SOURCE_ORIGIN" : `SENDER: ${msg.sender.username}`}
               </span>
-              <span className="text-matrix-ui/60">[{msg.createdAt}]</span>
+              <span
+                className={cn(
+                  "text-matrix-ui/80",
+                  activeTrack === msg.filePath && "text-matrix-glow/40",
+                )}
+              >
+                [{msg.createdAt}]
+              </span>
             </div>
 
-            {/* Message Content */}
             <div
-              className={`
-              px-3 py-2 border text-xs leading-relaxed
-              ${
+              onClick={() => msg.filePath && onSelectMessage(msg.filePath)}
+              className={cn(
+                "px-3 py-2 border text-xs leading-relaxed",
                 isMe
                   ? "border-matrix-glow bg-matrix-glow/5 text-matrix-bright shadow-[inset_0_0_10px_rgba(0,255,65,0.05)]"
-                  : "border-matrix-ui bg-matrix-ui/5 text-matrix-ui"
-              }
-            `}
+                  : "border-matrix-ui bg-matrix-ui/5 text-matrix-ui",
+                activeTrack === msg.filePath &&
+                  "border-matrix-glow shadow-glow text-matrix-glow/80",
+              )}
             >
               {msg.filePath}
             </div>
