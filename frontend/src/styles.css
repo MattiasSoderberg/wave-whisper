@@ -88,8 +88,8 @@
   .matrix-button {
     @apply border border-matrix-glow bg-matrix-bg text-matrix-glow px-4 py-1 
            uppercase text-xs tracking-[0.2em] shadow-terminal-glow
-           hover:bg-matrix-glow hover:text-matrix-bg transition-all duration-200
-           active:scale-95;
+           enabled:hover:bg-matrix-glow enabled:hover:text-matrix-bg transition-all duration-200
+           enabled:active:scale-95;
   }
 
   /* Terminal Input */
