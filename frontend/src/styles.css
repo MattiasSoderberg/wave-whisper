@@ -63,6 +63,21 @@
   }
 }
 
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-matrix-bg;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-matrix-ui/40 border border-matrix-ui;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-matrix-glow/60;
+  }
+}
+
 @layer components {
   /* Ramar i mörkgrönt som i bilderna */
   .matrix-frame {
