@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import type WaveSurfer from "wavesurfer.js";
 import Visualizer from "./Visualizer";
+import Button from "./Button";
 
 interface AudioProcessorProps {
   url: string | null;
+  isDecoding: boolean;
 }
 
-const AudioProcessor = ({ url }: AudioProcessorProps) => {
+const AudioProcessor = ({ url, isDecoding }: AudioProcessorProps) => {
   const [wavesurfer, setWaveSurfer] = useState<WaveSurfer | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -34,9 +36,17 @@ const AudioProcessor = ({ url }: AudioProcessorProps) => {
       {/* Visualizer (Oscilloscope) */}
       <div className="col-span-8 matrix-frame p-4 relative">
         <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-[10px] tracking-widest text-matrix-glow">
-          OSCILLOSCOPE_STREAM
+          OSCILLOSCOPE
         </h2>
-        <Visualizer url={url} onReady={onReady} />
+        {isDecoding ? (
+          <div className="h-full flex items-center justify-center">
+            <span className="text-matrix-bright animate-pulse text-[9px] tracking-[0.3em]">
+              DOWNLOADING_ENCRYPTED_AUDIO...
+            </span>
+          </div>
+        ) : (
+          <Visualizer url={url} onReady={onReady} />
+        )}
       </div>
 
       {/* Player (Transceiver Controls) */}
@@ -47,20 +57,20 @@ const AudioProcessor = ({ url }: AudioProcessorProps) => {
 
         <div className="flex flex-col gap-4 mt-2">
           <div className="grid grid-cols-2 gap-2">
-            <button
+            <Button
               onClick={handlePlayPause}
               disabled={!url}
-              className="matrix-btn-sm text-[10px]"
+              className="text-[10px] disabled:opacity-30 disabled:cursor-default"
             >
               {isPlaying ? "PAUSE_SIGNAL" : "PLAY_SIGNAL"}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleStop}
               disabled={!url}
-              className="matrix-btn-sm text-[10px]"
+              className="text-[10px] disabled:opacity-30 disabled:cursor-default"
             >
               ABORT_STREAM
-            </button>
+            </Button>
           </div>
 
           {/* En liten extra detalj: Volym-indikator */}
