@@ -3,6 +3,7 @@ import Button from "#/components/Button";
 import ConversationHistory from "#/components/ConversationHistory";
 import MessageList from "#/components/MessageList";
 import { fetchConversationMessages, sendMessage } from "#/lib/conversations";
+import { fetchMessageWithAudioBlob } from "#/lib/message";
 import { syncProfile } from "#/lib/profile";
 import { cn } from "#/lib/utils";
 import { useAuth, useUser } from "@clerk/tanstack-react-start";
@@ -30,6 +31,8 @@ function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [inputText, setInputText] = useState("");
   const [activeTrack, setActiveTrack] = useState<string | null>(null);
+  const [decodedMessage, setDecodedMessage] = useState<string | null>(null);
+  const [isDecodingMessage, setIsDecodingMessage] = useState(false);
   const { conversationId } = Route.useSearch();
   const navigate = useNavigate();
   const { data: messages, isPending: messagesLoading } = useQuery({
@@ -74,8 +77,26 @@ function Dashboard() {
     navigate({ to: "/" });
   };
 
-  const handleSetActiveTrack = (filePath: string) => {
-    setActiveTrack(filePath);
+  const handleSelectMessage = async (messageId: string) => {
+    try {
+      setIsDecodingMessage(true);
+
+      if (activeTrack) {
+        URL.revokeObjectURL(activeTrack);
+      }
+
+      const { decodedMessage, blobUrl } = await fetchMessageWithAudioBlob(
+        getToken,
+        messageId,
+      );
+
+      setDecodedMessage(decodedMessage);
+      setActiveTrack(blobUrl);
+    } catch (error) {
+      console.error("Error fetching message:", error);
+    } finally {
+      setIsDecodingMessage(false);
+    }
   };
 
   const mutation = useMutation({
@@ -198,7 +219,7 @@ function Dashboard() {
                   loading={messagesLoading}
                   currentUserId={user?.id || ""}
                   activeTrack={activeTrack}
-                  onSelectMessage={handleSetActiveTrack}
+                  onSelectMessage={handleSelectMessage}
                 />
               ) : (
                 <div className="h-full flex items-center justify-center text-matrix-ui animate-pulse text-xs">
@@ -209,7 +230,7 @@ function Dashboard() {
           </div>
 
           <div className="col-span-7">
-            <AudioProcessor url={activeTrack} />
+            <AudioProcessor url={activeTrack} isDecoding={isDecodingMessage} />
           </div>
         </div>
       </div>
