@@ -29,13 +29,35 @@ export const fetchConversationMessages = async (
   return await api<Message[]>(`/api/conversations/${conversationId}/messages`);
 };
 
-export const conversationQueryOptions = (
+export const sendMessage = async (
   getToken: GetToken,
-  enabled: boolean = true,
-) =>
+  conversationId: string,
+  text: string,
+) => {
+  const api = createApiClient(getToken);
+  return await api<Message>(
+    `/api/conversations/${conversationId}/messages/encode`,
+    {
+      method: "POST",
+      body: JSON.stringify({ text }),
+    },
+  );
+};
+
+export const conversationQueryOptions = (getToken: GetToken) =>
   queryOptions({
     queryKey: ["conversations"],
     queryFn: () => fetchConversations(getToken),
-    enabled,
     staleTime: 1000 * 60 * 120, // 120 minutes
+  });
+
+export const messagesQueryOptions = (
+  getToken: GetToken,
+  conversationId: string,
+  enabled: boolean,
+) =>
+  queryOptions({
+    queryKey: ["messages", conversationId],
+    queryFn: () => fetchConversationMessages(getToken, conversationId),
+    enabled,
   });
