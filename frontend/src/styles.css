@@ -94,7 +94,7 @@
 
   /* Terminal Input */
   .matrix-input {
-    @apply bg-matrix-bg border border-matrix-ui p-2 text-matrix-glow 
+    @apply bg-matrix-bg border border-matrix-ui p-2 text-[12px] text-matrix-glow 
            placeholder:text-matrix-ui outline-none focus:border-matrix-glow 
            focus:shadow-terminal-glow transition-all;
   }
