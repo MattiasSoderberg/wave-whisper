@@ -8,7 +8,7 @@ export const syncProfile = async (
   profile: Omit<Profile, "id">,
 ) => {
   const api = createApiClient(getToken);
-  return await api("/api/profiles/sync", {
+  return await api<Profile>("/api/profiles/sync", {
     method: "POST",
     body: JSON.stringify(profile),
   });
@@ -20,6 +20,15 @@ export const searchProfiles = async (getToken: GetToken, query: string) => {
 
   return result;
 };
+
+export const profileOptions = (
+  getToken: GetToken,
+  profile: Omit<Profile, "id">,
+) =>
+  queryOptions({
+    queryKey: ["profile"],
+    queryFn: () => syncProfile(getToken, profile),
+  });
 
 export const profileQueryOptions = (
   getToken: GetToken,
