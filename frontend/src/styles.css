@@ -98,6 +98,10 @@
            placeholder:text-matrix-ui outline-none focus:border-matrix-glow 
            focus:shadow-terminal-glow transition-all;
   }
+
+  .matrix-bright {
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.7);
+  }
 }
 
 * {
