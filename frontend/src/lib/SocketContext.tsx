@@ -26,7 +26,7 @@ export const SocketProvider = ({
     if (!user?.id || clientRef.current) return;
 
     const client = new Client({
-      brokerURL: "ws://localhost:8080/ws",
+      brokerURL: import.meta.env.VITE_SOCKET_URL,
       onConnect: () => {
         setConnected(true);
       },
