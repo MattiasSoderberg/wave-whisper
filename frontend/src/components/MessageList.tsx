@@ -6,7 +6,7 @@ interface MessageListProps {
   messages: Message[];
   loading: boolean;
   currentUserId: string | undefined;
-  activeTrack: string | null;
+  selectedMessageId: string | null;
   onSelectMessage: (messageId: string) => void;
 }
 
@@ -14,7 +14,7 @@ const MessageList = ({
   messages,
   loading,
   currentUserId,
-  activeTrack,
+  selectedMessageId,
   onSelectMessage,
 }: MessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -63,7 +63,7 @@ const MessageList = ({
               <span
                 className={cn(
                   isMe ? "text-matrix-glow" : "text-matrix-ui",
-                  activeTrack === msg.id && "text-matrix-glow/60",
+                  selectedMessageId === msg.id && "text-matrix-glow/60",
                 )}
               >
                 {isMe ? "SOURCE_ORIGIN" : `SENDER: ${msg.sender.username}`}
@@ -71,7 +71,7 @@ const MessageList = ({
               <span
                 className={cn(
                   "text-matrix-ui/80",
-                  activeTrack === msg.id && "text-matrix-glow/40",
+                  selectedMessageId === msg.id && "text-matrix-glow/40",
                 )}
               >
                 [{msg.createdAt}]
@@ -85,7 +85,7 @@ const MessageList = ({
                 isMe
                   ? "border-matrix-glow bg-matrix-glow/5 text-matrix-bright shadow-[inset_0_0_10px_rgba(0,255,65,0.05)]"
                   : "border-matrix-ui bg-matrix-ui/5 text-matrix-ui",
-                activeTrack === msg.id &&
+                selectedMessageId === msg.id &&
                   "border-matrix-glow shadow-glow text-matrix-glow/80",
               )}
             >
