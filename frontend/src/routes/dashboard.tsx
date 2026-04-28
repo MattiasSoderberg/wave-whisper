@@ -184,45 +184,53 @@ function Dashboard() {
             ENCRYPTED_COMMUNICATION
           </h2>
           <div className="flex-1 matrix-frame relative overflow-hidden flex flex-col">
-            <div className="col-span-5 matrix-frame border-x-0 border-t-0 p-4 relative">
-              <div className="flex flex-col h-full gap-3 mt-2">
-                <textarea
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  disabled={!conversationId || mutation.isPending}
-                  className="matrix-input w-full flex-1 text-xs resize-none bg-black/50 custom-scrollbar disabled:opacity-30"
-                  placeholder={
-                    conversationId
-                      ? "ENTER_TEXT_TO_ENCRYPT..."
-                      : "SELECT_SIGNAL_FIRST..."
-                  }
-                />
+            <div className="col-span-5 matrix-frame border-x-0 border-t-0 px-4 pt-1 pb-3 relative">
+              <div className="flex flex-col h-full gap-2 mt-2">
+                <div className="flex gap-3">
+                  <textarea
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={!conversationId || mutation.isPending}
+                    className="matrix-input h-16 w-full flex-1 text-xs resize-none bg-black/50 custom-scrollbar disabled:opacity-80"
+                    placeholder={
+                      conversationId
+                        ? "ENTER_TEXT_TO_ENCRYPT..."
+                        : "SELECT_CONVERSATION_FIRST..."
+                    }
+                  />
+
+                  <Button
+                    onClick={handleSend}
+                    disabled={!conversationId || !inputText.trim()}
+                    className="disabled:opacity-30 disabled:cursor-default"
+                  >
+                    SEND
+                  </Button>
+                </div>
 
                 <div className="flex gap-2 items-center">
-                  <div className="flex-1 h-8 border border-matrix-ui flex items-center px-4 relative overflow-hidden bg-matrix-ui/5">
+                  <div className="flex-1 h-3 border border-matrix-ui flex items-center px-4 relative overflow-hidden bg-matrix-ui/5">
                     <div
                       className={cn(
                         "bg-matrix-glow/30 h-full absolute block left-0 top-0 transition-all duration-1000 border-r border-matrix-glow",
-                        mutation.isPending
-                          ? "w-full animate-pulse"
-                          : "invisible w-[0%]",
+                        mutation.isPending ? "w-full animate-pulse" : "w-[0%]",
+                        mutation.isSuccess
+                          ? "w-[0%] opacity-0"
+                          : "block opacity-100",
                       )}
                     />
-                    <span className="z-10 text-[9px] tracking-[0.3em] text-matrix-bright">
+                    <span
+                      className={cn(
+                        "z-10 text-[6px] tracking-[0.3em] text-matrix-ui",
+                        mutation.isPending && "text-matrix-glow",
+                      )}
+                    >
                       {mutation.isPending
                         ? "UPLOADING_ENCRYPTED_PACKET..."
                         : "ENCODER_READY"}
                     </span>
                   </div>
-
-                  <button
-                    onClick={handleSend}
-                    disabled={!conversationId || !inputText.trim()}
-                    className="matrix-btn-sm h-8 px-4 cursor-pointer disabled:opacity-30 disabled:cursor-default"
-                  >
-                    SEND
-                  </button>
                 </div>
               </div>
             </div>
