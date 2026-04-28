@@ -51,7 +51,7 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
 
   return (
     <section className="flex-1 flex flex-col matrix-frame p-4  gap-6 min-h-0 relative">
-      <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow">
+      <h2 className="absolute -top-3 left-0 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow z-40 lg:left-4">
         CONVERSATION_HISTORY
       </h2>
       <div className="flex-1 overflow-hidden flex flex-col">
