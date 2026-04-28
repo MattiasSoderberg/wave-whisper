@@ -31,6 +31,9 @@ function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [inputText, setInputText] = useState("");
   const [activeTrack, setActiveTrack] = useState<string | null>(null);
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
+    null,
+  );
   const [decodedMessage, setDecodedMessage] = useState<string | null>(null);
   const [isDecodingMessage, setIsDecodingMessage] = useState(false);
   const { conversationId } = Route.useSearch();
@@ -90,6 +93,7 @@ function Dashboard() {
         messageId,
       );
 
+      setSelectedMessageId(messageId);
       setDecodedMessage(decodedMessage);
       setActiveTrack(blobUrl);
     } catch (error) {
@@ -218,7 +222,7 @@ function Dashboard() {
                   messages={messages || []}
                   loading={messagesLoading}
                   currentUserId={user?.id || ""}
-                  activeTrack={activeTrack}
+                  selectedMessageId={selectedMessageId}
                   onSelectMessage={handleSelectMessage}
                 />
               ) : (
@@ -230,7 +234,11 @@ function Dashboard() {
           </div>
 
           <div className="col-span-7">
-            <AudioProcessor url={activeTrack} isDecoding={isDecodingMessage} />
+            <AudioProcessor
+              url={activeTrack}
+              isDecoding={isDecodingMessage}
+              decodedMessage={decodedMessage}
+            />
           </div>
         </div>
       </div>
