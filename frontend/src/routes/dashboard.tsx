@@ -46,6 +46,16 @@ function Dashboard() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    setInputText("");
+    setSelectedMessageId(null);
+    setDecodedMessage(null);
+    if (activeTrack) {
+      URL.revokeObjectURL(activeTrack);
+      setActiveTrack(null);
+    }
+  }, [conversationId]);
+
+  useEffect(() => {
     if (authLoaded && !isSignedIn) {
       navigate({ to: "/" });
     }
@@ -181,7 +191,7 @@ function Dashboard() {
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={handleKeyDown}
                   disabled={!conversationId || mutation.isPending}
-                  className="matrix-input w-full flex-1 text-xs resize-none bg-black/50 disabled:opacity-30"
+                  className="matrix-input w-full flex-1 text-xs resize-none bg-black/50 custom-scrollbar disabled:opacity-30"
                   placeholder={
                     conversationId
                       ? "ENTER_TEXT_TO_ENCRYPT..."
@@ -234,7 +244,7 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="col-span-7">
+          <div className="w-full">
             <AudioProcessor
               url={activeTrack}
               isDecoding={isDecodingMessage}
