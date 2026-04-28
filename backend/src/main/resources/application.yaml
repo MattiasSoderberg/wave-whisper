@@ -2,10 +2,13 @@ spring:
   application:
     name: backend
   datasource:
-    url: ${DB_CONNECTION_STRING}
+    url: jdbc:postgresql://localhost:5432/wave-whisper
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
     properties:
       hibernate:
