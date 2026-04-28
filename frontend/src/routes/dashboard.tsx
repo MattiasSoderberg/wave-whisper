@@ -169,9 +169,12 @@ function Dashboard() {
         <div className="w-72 flex flex-col shrink-0 xl:w-96">
           <ConversationHistory activeId={conversationId} />
         </div>
-        <div className="flex-1 flex flex-col gap-6 min-h-0">
+        <main className="flex-1 flex flex-col gap-6 min-h-0 relative">
+          <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow z-50">
+            ENCRYPTED_COMMUNICATION
+          </h2>
           <div className="flex-1 matrix-frame relative overflow-hidden flex flex-col">
-            <div className="col-span-5 matrix-frame p-4 relative">
+            <div className="col-span-5 matrix-frame border-x-0 border-t-0 p-4 relative">
               <div className="flex flex-col h-full gap-3 mt-2">
                 <textarea
                   value={inputText}
@@ -213,9 +216,7 @@ function Dashboard() {
                 </div>
               </div>
             </div>
-            <h2 className="absolute top-0.5 left-1 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow z-10">
-              ENCRYPTED_COMMUNICATION
-            </h2>
+
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
               {conversationId ? (
                 <MessageList
@@ -240,7 +241,7 @@ function Dashboard() {
               decodedMessage={decodedMessage}
             />
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );
