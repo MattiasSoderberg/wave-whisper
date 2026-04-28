@@ -50,75 +50,76 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
   }
 
   return (
-    <section className="flex-1 matrix-frame p-4 overflow-hidden flex flex-col">
-      <h2 className="absolute top-0.5 left-1 bg-matrix-bg px-2 text-xs tracking-widest uppercase">
+    <section className="flex-1 flex flex-col matrix-frame p-4  gap-6 min-h-0 relative">
+      <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow">
         CONVERSATION_HISTORY
       </h2>
+      <div className="flex-1 overflow-hidden flex flex-col">
+        <div className="relative mt-2">
+          <input
+            className="w-full matrix-input"
+            placeholder="SEARCH_USERS..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {isFetching && (
+            <div className="absolute right-2 top-2 animate-spin text-matrix-glow">
+              /
+            </div>
+          )}
+        </div>
 
-      <div className="relative mt-2">
-        <input
-          className="w-full matrix-input"
-          placeholder="SEARCH_USERS..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        {isFetching && (
-          <div className="absolute right-2 top-2 animate-spin text-matrix-glow">
-            /
+        {searchQuery.length > 2 && (
+          <div className="flex flex-col gap-2">
+            <header className="text-[9px] text-matrix-ui italic">
+              SEARCH_RESULTS:
+            </header>
+            {searchResults?.map((user) => (
+              <button
+                key={user.id}
+                onClick={() => mutation.mutate(user.id)}
+                className="text-left p-2 border border-transparent hover:border-matrix-glow hover:bg-matrix-glow/10 group"
+              >
+                <div className="text-[11px] text-matrix-bright">
+                  {user.username}
+                </div>
+                <div className="text-[9px] text-matrix-ui group-hover:text-matrix-glow">
+                  INITIALIZE_CONVERSATION
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {conversations && conversations.length > 0 ? (
+          <ul className="flex-1 overflow-y-auto custom-scrollbar space-y-3 pt-4">
+            {conversations?.map((conversation) => (
+              <li
+                key={conversation.id}
+                className={cn(
+                  "flex justify-between items-center group hover:bg-matrix-ui/40 p-1 group",
+                  activeId === conversation.id &&
+                    "bg-matrix-glow/20 hover:bg-matrix-glow/20",
+                )}
+              >
+                <button
+                  className="text-[10px] group-hover:text-white flex items-center gap-1 cursor-pointer"
+                  onClick={() => handleClick(conversation.id)}
+                >
+                  <span className="text-sm tracking-tighter">
+                    [0{conversation.id}. {conversation.userA.username} -{" "}
+                    {conversation.createdAt}]
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="h-full flex justify-center mt-16 text-matrix-ui animate-pulse text-xs">
+            NO_CONVERSATIONS_FOUND...
           </div>
         )}
       </div>
-
-      {searchQuery.length > 2 && (
-        <div className="flex flex-col gap-2">
-          <header className="text-[9px] text-matrix-ui italic">
-            SEARCH_RESULTS:
-          </header>
-          {searchResults?.map((user) => (
-            <button
-              key={user.id}
-              onClick={() => mutation.mutate(user.id)}
-              className="text-left p-2 border border-transparent hover:border-matrix-glow hover:bg-matrix-glow/10 group"
-            >
-              <div className="text-[11px] text-matrix-bright">
-                {user.username}
-              </div>
-              <div className="text-[9px] text-matrix-ui group-hover:text-matrix-glow">
-                INITIALIZE_CONVERSATION
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {conversations && conversations.length > 0 ? (
-        <ul className="flex-1 overflow-y-auto custom-scrollbar space-y-3 pt-4">
-          {conversations?.map((conversation) => (
-            <li
-              key={conversation.id}
-              className={cn(
-                "flex justify-between items-center group hover:bg-matrix-ui/40 p-1 group",
-                activeId === conversation.id &&
-                  "bg-matrix-glow/20 hover:bg-matrix-glow/20",
-              )}
-            >
-              <button
-                className="text-[10px] group-hover:text-white flex items-center gap-1 cursor-pointer"
-                onClick={() => handleClick(conversation.id)}
-              >
-                <span className="text-sm tracking-tighter">
-                  [0{conversation.id}. {conversation.userA.username} -{" "}
-                  {conversation.createdAt}]
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div className="h-full flex justify-center mt-16 text-matrix-ui animate-pulse text-xs">
-          NO_CONVERSATIONS_FOUND...
-        </div>
-      )}
     </section>
   );
 };
