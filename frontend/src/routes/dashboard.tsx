@@ -10,6 +10,7 @@ import { useAuth, useUser } from "@clerk/tanstack-react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useWindowSize } from "#/hooks/useWindowSize";
 
 interface DashboardSearch {
   conversationId?: string;
@@ -36,6 +37,7 @@ function Dashboard() {
   );
   const [decodedMessage, setDecodedMessage] = useState<string | null>(null);
   const [isDecodingMessage, setIsDecodingMessage] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const { conversationId } = Route.useSearch();
   const navigate = useNavigate();
   const { data: messages, isPending: messagesLoading } = useQuery({
@@ -44,6 +46,14 @@ function Dashboard() {
     enabled: !!conversationId,
   });
   const queryClient = useQueryClient();
+  const width = useWindowSize();
+  const isDesktop = width >= 1024;
+
+  useEffect(() => {
+    if (isDesktop) {
+      setShowMenu(false);
+    }
+  }, [isDesktop]);
 
   useEffect(() => {
     setInputText("");
@@ -138,6 +148,10 @@ function Dashboard() {
     }
   };
 
+  const toggleMenu = () => {
+    setShowMenu((prev) => !prev);
+  };
+
   if (!authLoaded || !isSignedIn) {
     return;
   }
@@ -163,24 +177,48 @@ function Dashboard() {
   if (error) return <div className="text-red-500 p-10">{error}</div>;
 
   return (
-    <div className="flex flex-col h-screen p-6 gap-4 max-w-[1600px] mx-auto overflow-hidden">
+    <div className="flex flex-col h-screen p-2 gap-4 max-w-[1600px] mx-auto overflow-hidden md:p-6">
       <header className="flex justify-between items-center text-[10px] tracking-[0.4em] text-matrix-glow border-b border-matrix-ui pb-2 shrink-0">
-        <span>WAVE_WHISPER // SESSION_ID: {user?.id.slice(0, 8)}</span>
-        <div className="flex items-center gap-6">
-          <span className="text-matrix-ui">OPERATOR: {user?.fullName}</span>
-          <Button onClick={handleSignOut} className="text-[9px] py-1">
-            TERMINATE_SESSION
-          </Button>
-        </div>
+        <span>
+          WAVE_WHISPER //<span className="hidden md:inline"> OPERATOR: </span>
+          <span className="block md:inline">{user?.fullName}</span>
+        </span>
+        {/* <div className="flex items-center gap-6">
+          </div> */}
+        <Button
+          onClick={handleSignOut}
+          className="text-[9px] py-1 hidden lg:inline-block"
+        >
+          <span className="block md:inline">TERMINATE_</span>
+          <span className="block md:inline">SESSION</span>
+        </Button>
+        <Button
+          onClick={toggleMenu}
+          className="group text-[9px] py-1 px-2 lg:hidden"
+        >
+          <div className="flex flex-col gap-1">
+            <div className="w-5 h-1 border-none bg-matrix-glow group-hover:bg-matrix-bg" />
+            <div className="w-5 h-1 border-none bg-matrix-glow group-hover:bg-matrix-bg" />
+            <div className="w-5 h-1 border-none bg-matrix-glow group-hover:bg-matrix-bg" />
+          </div>
+        </Button>
       </header>
 
-      <div className="flex-1 flex gap-6 min-h-0">
+      <div className="flex-1 flex gap-6 min-h-0 relative">
         {" "}
-        <div className="w-72 flex flex-col shrink-0 xl:w-96">
+        <div
+          className={cn(
+            "flex flex-col",
+            isDesktop
+              ? "relative shrink-0 w-96"
+              : "w-[85%] max-w-96 fixed left-0 top-5 bottom-0 -translate-x-full transition-all duration-300 z-50",
+            !isDesktop && showMenu && "translate-x-0",
+          )}
+        >
           <ConversationHistory activeId={conversationId} />
         </div>
         <main className="flex-1 flex flex-col gap-6 min-h-0 relative">
-          <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow z-50">
+          <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-xs tracking-widest text-matrix-glow z-40">
             ENCRYPTED_COMMUNICATION
           </h2>
           <div className="flex-1 matrix-frame relative overflow-hidden flex flex-col">
