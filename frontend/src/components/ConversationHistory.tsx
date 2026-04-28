@@ -1,3 +1,4 @@
+import { useDebounce } from "#/hooks/useDebounce";
 import {
   conversationQueryOptions,
   createConversation,
@@ -13,8 +14,9 @@ import React, { useEffect } from "react";
 
 const ConversationHistory = ({ activeId }: { activeId?: string }) => {
   const [searchQuery, setSearchQuery] = React.useState("");
+  const deboucedSearchQuery = useDebounce(searchQuery, 500);
   const { data: searchResults, isFetching } = useQuery(
-    profileQueryOptions(getToken, searchQuery),
+    profileQueryOptions(getToken, deboucedSearchQuery),
   );
   const { data: conversations, isPending: conversationsLoading } = useQuery(
     conversationQueryOptions(getToken),
@@ -51,8 +53,6 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
 
   useEffect(() => {
     if (!client || !connected || !profile?.id) return;
-
-    console.log("LINK_STABLE: Subscribing to topics...");
 
     const subscription = client.subscribe(
       `/topic/profiles/${profile.id}/conversations`,
