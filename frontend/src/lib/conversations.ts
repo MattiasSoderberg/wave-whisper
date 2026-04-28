@@ -48,7 +48,6 @@ export const conversationQueryOptions = (getToken: GetToken) =>
   queryOptions({
     queryKey: ["conversations"],
     queryFn: () => fetchConversations(getToken),
-    staleTime: 1000 * 60 * 120, // 120 minutes
   });
 
 export const messagesQueryOptions = (
