@@ -1,23 +1,27 @@
 import React, { useEffect, useRef } from "react";
-import type { Message } from "#/types";
 import { cn } from "#/lib/utils";
+import { messagesQueryOptions } from "#/lib/conversations";
+import { useAuth } from "@clerk/tanstack-react-start";
+import { useQuery } from "@tanstack/react-query";
 
 interface MessageListProps {
-  messages: Message[];
-  loading: boolean;
+  conversationId: string | null;
   currentUserId: string | undefined;
   selectedMessageId: string | null;
   onSelectMessage: (messageId: string) => void;
 }
 
 const MessageList = ({
-  messages,
-  loading,
+  conversationId,
   currentUserId,
   selectedMessageId,
   onSelectMessage,
 }: MessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { getToken } = useAuth();
+  const { data: messages = [], isPending: loading } = useQuery(
+    messagesQueryOptions(getToken, conversationId!, !!conversationId),
+  );
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -28,11 +32,9 @@ const MessageList = ({
   if (loading) {
     return (
       <div className="flex flex-col gap-2 p-4">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="animate-pulse text-[10px] text-matrix-ui">
-            DECRYPTING_PACKET_00{i}...
-          </div>
-        ))}
+        <div className="animate-pulse text-[10px] text-matrix-ui">
+          LOADING_MESSAGES...
+        </div>
       </div>
     );
   }
