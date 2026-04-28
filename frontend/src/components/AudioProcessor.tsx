@@ -40,11 +40,11 @@ const AudioProcessor = ({
   return (
     <div className="grid grid-cols-12 gap-6 h-52 relative">
       {/* Player (Transceiver Controls) */}
-      <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-[10px] tracking-widest text-matrix-glow z-50">
+      <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-[10px] tracking-widest text-matrix-glow z-40">
         TRANSCEIVER_CONTROLS
       </h2>
-      <div className="col-span-5 matrix-frame p-4 relative flex flex-col justify-between bg-matrix-ui/5 overflow-hidden">
-        <div className="flex flex-col gap-4 mt-2">
+      <div className="col-span-12 matrix-frame p-4 relative flex flex-col justify-between bg-matrix-ui/5 overflow-hidden lg:col-span-6 xl:col-span-5">
+        <div className="flex flex-col items-start gap-4 mt-2">
           <div className="grid grid-cols-2 gap-2">
             <Button
               onClick={handlePlayPause}
@@ -88,8 +88,8 @@ const AudioProcessor = ({
       </div>
 
       {/* Visualizer (Oscilloscope) */}
-      <div className="col-span-7 matrix-frame p-4 relative">
-        <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-[10px] tracking-widest text-matrix-glow">
+      <div className="col-span-0 hidden matrix-frame p-4 relative lg:block lg:col-span-6 xl:col-span-7">
+        <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-[10px] tracking-widest text-matrix-glow z-40">
           OSCILLOSCOPE
         </h2>
         {isDecoding ? (
