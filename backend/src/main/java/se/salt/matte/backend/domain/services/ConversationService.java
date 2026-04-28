@@ -1,5 +1,6 @@
 package se.salt.matte.backend.domain.services;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import se.salt.matte.backend.domain.models.Conversation;
 import se.salt.matte.backend.domain.models.Message;
@@ -21,17 +22,20 @@ public class ConversationService {
     private final MessageRepository messageRepository;
     private final AudioSteganographyService audioSteganographyService;
     private final StorageService storageService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public ConversationService(ConversationRepository conversationRepository,
                                ProfileRepository profileRepository,
                                MessageRepository messageRepository,
                                AudioSteganographyService audioSteganographyService,
-                               StorageService storageService) {
+                               StorageService storageService,
+                               SimpMessagingTemplate messagingTemplate) {
         this.conversationRepository = conversationRepository;
         this.profileRepository = profileRepository;
         this.messageRepository = messageRepository;
         this.audioSteganographyService = audioSteganographyService;
         this.storageService = storageService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     public Conversation startConversation(String senderEmail, UUID receiverId) {
@@ -74,6 +78,8 @@ public class ConversationService {
         message.setConversation(conversation);
         message.setSender(profile);
         message.setFilePath(fileName);
+
+        messagingTemplate.convertAndSend("/topic/conversations/" + conversationId + "/messages", message);
         return messageRepository.save(message);
     }
 }
