@@ -1,0 +1,58 @@
+name: frontend deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_URL: ${{ vars.GC_REGION }}-docker.pkg.dev/${{ vars.GC_PROJECT_ID }}/${{ vars.GC_REPO_NAME }}/${{ vars.GC_SERVICE_NAME_FE }}:${{ github.sha }}
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - id: "auth"
+        name: Authenticate GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Use gcloud CLI
+        run: gcloud info
+
+      - name: Configure docker
+        run: gcloud auth configure-docker ${{ vars.GC_REGION }}-docker.pkg.dev
+
+      - name: Ensure Artifact Repository exists
+        run: |
+          gcloud artifacts repositories describe ${{ vars.GC_REPO_NAME }} \
+            --location=${{ vars.GC_REGION }} || \
+          gcloud artifacts repositories create ${{ vars.GC_REPO_NAME }} \
+            --repository-format=docker \
+            --location=${{ vars.GC_REGION }}
+
+      - name: Docker Build
+        run: docker build --build-arg VITE_BACKEND_URL="${{ vars.VITE_API_URL }}" \
+          --build-arg ${{ vars.VITE_SOCKET_URL }} \
+          --build-arg ${{ vars.CLERK_PUBLISHABLE_KEY }} \
+          --build-arg ${{ secrets.CLERK_SECRET_KEY }} \
+          --build-arg ${{ vars.CLERK_SIGN_IN_FORCE_REDIRECT_URL }} \
+          --build-arg ${{ vars.CLERK_SIGN_OUT_FORCE_REDIRECT_URL }} \
+          --no-cache -t ${{ env.IMAGE_URL }} . -f Dockerfile
+
+      - name: Docker Push
+        run: docker push $IMAGE_URL
+
+      - name: Update Cloud Run service
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          region: ${{ vars.GC_REGION }}
+          service: ${{ vars.GC_SERVICE_NAME_FE }}
+          image: ${{ env.IMAGE_URL }}
