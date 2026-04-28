@@ -1,0 +1,58 @@
+name: backend deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_URL: ${{ vars.GC_REGION }}-docker.pkg.dev/${{ vars.GC_PROJECT_ID }}/${{ vars.GC_REPO_NAME }}/${{ vars.GC_SERVICE_NAME_BE }}:${{ github.sha }}
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v6
+
+      - id: "auth"
+        name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+
+      - name: setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Using gcloud CLI
+        run: gcloud info
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker ${{ vars.GC_REGION }}-docker.pkg.dev
+
+      - name: Ensure Artifact Repository exists
+        run: |
+          gcloud artifacts repositories describe ${{ vars.GC_REPO_NAME }} \
+            --location=${{ vars.GC_REGION }} || \
+          gcloud artifacts repositories create ${{ vars.GC_REPO_NAME }} \
+            --repository-format=docker \
+            --location=${{ vars.GC_REGION }}
+
+      - name: Docker build
+        run: docker build -t ${{ env.IMAGE_URL }} -f Dockerfile .
+
+      - name: Docker push
+        run: docker push $IMAGE_URL
+
+      - name: update Cloud Run service
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          region: ${{ vars.GC_REGION }}
+          service: ${{ vars.GC_SERVICE_NAME_BE }}
+          image: ${{ env.IMAGE_URL }}
+          env_vars: DB_CONNECTION_STRING=${{ secrets.DB_CONNECTION_STRING }},\
+            JWT_ISSUER_URI=${{ vars.JWT_ISSUER_URI }},\
+            SUPABASE_URL=${{ vars.SUPABASE_URL }},\
+            SUPABASE_KEY=${{ secrets.SUPABASE_KEY }},\
+            SUPABASE_BUCKET=${{ vars.SUPABASE_BUCKET }}
