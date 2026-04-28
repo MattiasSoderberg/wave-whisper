@@ -3,6 +3,7 @@ import type WaveSurfer from "wavesurfer.js";
 import Visualizer from "./Visualizer";
 import Button from "./Button";
 import { cn } from "#/lib/utils";
+import { Play, Pause, Square } from "lucide-react";
 
 interface AudioProcessorProps {
   url: string | null;
@@ -51,14 +52,18 @@ const AudioProcessor = ({
               disabled={!url}
               className="text-[10px] disabled:opacity-30 disabled:cursor-default"
             >
-              {isPlaying ? "PAUSE_SIGNAL" : "PLAY_SIGNAL"}
+              {isPlaying ? (
+                <Pause size={14} className="fill-matrix-glow" />
+              ) : (
+                <Play size={14} className="fill-matrix-glow" />
+              )}
             </Button>
             <Button
               onClick={handleStop}
               disabled={!url}
               className="text-[10px] disabled:opacity-30 disabled:cursor-default"
             >
-              ABORT_STREAM
+              <Square size={14} className="fill-matrix-glow" />
             </Button>
           </div>
         </div>
