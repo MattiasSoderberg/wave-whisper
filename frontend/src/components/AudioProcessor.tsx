@@ -96,7 +96,7 @@ const AudioProcessor = ({
             PLAIN_TEXT_MODE
           </div>
 
-          <div className="text-[11px] leading-relaxed text-matrix-bright break-words">
+          <div className="text-[11px] leading-relaxed text-matrix-bright wrap-break-words">
             {isDecoding ? (
               <span className="animate-pulse">_</span>
             ) : (
