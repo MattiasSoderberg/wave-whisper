@@ -51,8 +51,9 @@ jobs:
           region: ${{ vars.GC_REGION }}
           service: ${{ vars.GC_SERVICE_NAME_BE }}
           image: ${{ env.IMAGE_URL }}
-          env_vars: DB_CONNECTION_STRING=${{ secrets.DB_CONNECTION_STRING }},\
-            JWT_ISSUER_URI=${{ vars.JWT_ISSUER_URI }},\
-            SUPABASE_URL=${{ vars.SUPABASE_URL }},\
-            SUPABASE_KEY=${{ secrets.SUPABASE_KEY }},\
+          env_vars: |-
+            DB_CONNECTION_STRING=${{ secrets.DB_CONNECTION_STRING }}
+            JWT_ISSUER_URI=${{ vars.JWT_ISSUER_URI }}
+            SUPABASE_URL=${{ vars.SUPABASE_URL }}
+            SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}
             SUPABASE_BUCKET=${{ vars.SUPABASE_BUCKET }}
