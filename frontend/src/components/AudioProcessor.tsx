@@ -6,9 +6,14 @@ import Button from "./Button";
 interface AudioProcessorProps {
   url: string | null;
   isDecoding: boolean;
+  decodedMessage: string | null;
 }
 
-const AudioProcessor = ({ url, isDecoding }: AudioProcessorProps) => {
+const AudioProcessor = ({
+  url,
+  isDecoding,
+  decodedMessage,
+}: AudioProcessorProps) => {
   const [wavesurfer, setWaveSurfer] = useState<WaveSurfer | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -73,7 +78,6 @@ const AudioProcessor = ({ url, isDecoding }: AudioProcessorProps) => {
             </Button>
           </div>
 
-          {/* En liten extra detalj: Volym-indikator */}
           <div className="flex flex-col gap-1">
             <span className="text-[8px] text-matrix-ui tracking-tighter">
               GAIN_CONTROL
@@ -84,9 +88,26 @@ const AudioProcessor = ({ url, isDecoding }: AudioProcessorProps) => {
           </div>
         </div>
 
-        <button className="matrix-btn w-full py-2 text-xs border-matrix-bright text-matrix-bright bg-matrix-glow/10">
+        {/* <button className="matrix-btn w-full py-2 text-xs border-matrix-bright text-matrix-bright bg-matrix-glow/10">
           RE-DECODE_PACKET
-        </button>
+        </button> */}
+        <div className="flex-1 border border-matrix-ui/30 bg-black/40 p-3 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-1 text-[7px] text-matrix-ui/40">
+            PLAIN_TEXT_MODE
+          </div>
+
+          <div className="text-[11px] leading-relaxed text-matrix-bright break-words">
+            {isDecoding ? (
+              <span className="animate-pulse">_</span>
+            ) : (
+              <>
+                <span className="text-matrix-ui mr-2">{">"}</span>
+                {decodedMessage || "AWAITING_DECODED_OUTPUT..."}
+                <span className="inline-block w-1.5 h-3 ml-1 bg-matrix-glow animate-pulse align-middle" />
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
