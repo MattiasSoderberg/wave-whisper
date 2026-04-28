@@ -1,7 +1,11 @@
 package se.salt.matte.backend.domain.services;
 
+import jakarta.transaction.Transactional;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import se.salt.matte.backend.domain.event.ConversationCreatedEvent;
+import se.salt.matte.backend.domain.event.MessageEncodedEvent;
 import se.salt.matte.backend.domain.models.Conversation;
 import se.salt.matte.backend.domain.models.Message;
 import se.salt.matte.backend.domain.models.Profile;
@@ -22,22 +26,23 @@ public class ConversationService {
     private final MessageRepository messageRepository;
     private final AudioSteganographyService audioSteganographyService;
     private final StorageService storageService;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ConversationService(ConversationRepository conversationRepository,
                                ProfileRepository profileRepository,
                                MessageRepository messageRepository,
                                AudioSteganographyService audioSteganographyService,
                                StorageService storageService,
-                               SimpMessagingTemplate messagingTemplate) {
+                               ApplicationEventPublisher eventPublisher) {
         this.conversationRepository = conversationRepository;
         this.profileRepository = profileRepository;
         this.messageRepository = messageRepository;
         this.audioSteganographyService = audioSteganographyService;
         this.storageService = storageService;
-        this.messagingTemplate = messagingTemplate;
+        this.eventPublisher = eventPublisher;
     }
 
+    @Transactional
     public Conversation startConversation(String senderEmail, UUID receiverId) {
         Profile sender = profileRepository.findByEmail(senderEmail).orElseThrow(ProfileNotFoundException::new);
         Profile receiver = profileRepository.findById(receiverId).orElseThrow(ProfileNotFoundException::new);
@@ -46,7 +51,12 @@ public class ConversationService {
 
         return conversationRepository.findByUserAAndUserB(
                 tempConversation.getUserA(), tempConversation.getUserB()
-        ).orElseGet(() -> conversationRepository.save(tempConversation));
+        ).orElseGet(() -> {
+            Conversation saved = conversationRepository.save(tempConversation);
+
+            eventPublisher.publishEvent(new ConversationCreatedEvent(saved));
+            return saved;
+        });
     }
 
     public List<Conversation> getUserConversations(String email) {
@@ -66,6 +76,7 @@ public class ConversationService {
         return messageRepository.findByConversationOrderByCreatedAtAsc(conversation);
     }
 
+    @Transactional
     public Message encodeConversationMessage(UUID conversationId, String text, String email) {
         Profile profile = profileRepository.findByEmail(email).orElseThrow(ProfileNotFoundException::new);
         Conversation conversation = conversationRepository.findById(conversationId)
@@ -79,7 +90,7 @@ public class ConversationService {
         message.setSender(profile);
         message.setFilePath(fileName);
 
-        messagingTemplate.convertAndSend("/topic/conversations/" + conversationId + "/messages", message);
+        eventPublisher.publishEvent(new MessageEncodedEvent(message));
         return messageRepository.save(message);
     }
 }
