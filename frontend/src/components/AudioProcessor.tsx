@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import type WaveSurfer from "wavesurfer.js";
 import Visualizer from "./Visualizer";
 import Button from "./Button";
+import { cn } from "#/lib/utils";
 
 interface AudioProcessorProps {
   url: string | null;
@@ -37,29 +38,12 @@ const AudioProcessor = ({
   };
 
   return (
-    <div className="grid grid-cols-12 gap-6 h-full">
-      {/* Visualizer (Oscilloscope) */}
-      <div className="col-span-8 matrix-frame p-4 relative">
-        <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-[10px] tracking-widest text-matrix-glow">
-          OSCILLOSCOPE
-        </h2>
-        {isDecoding ? (
-          <div className="h-full flex items-center justify-center">
-            <span className="text-matrix-bright animate-pulse text-[9px] tracking-[0.3em]">
-              DOWNLOADING_ENCRYPTED_AUDIO...
-            </span>
-          </div>
-        ) : (
-          <Visualizer url={url} onReady={onReady} />
-        )}
-      </div>
-
+    <div className="grid grid-cols-12 gap-6 h-52 relative">
       {/* Player (Transceiver Controls) */}
-      <div className="col-span-4 matrix-frame p-4 relative flex flex-col justify-between bg-matrix-ui/5">
-        <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-[10px] tracking-widest text-matrix-glow">
-          TRANSCEIVER_CONTROLS
-        </h2>
-
+      <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-[10px] tracking-widest text-matrix-glow z-50">
+        TRANSCEIVER_CONTROLS
+      </h2>
+      <div className="col-span-5 matrix-frame p-4 relative flex flex-col justify-between bg-matrix-ui/5 overflow-hidden">
         <div className="flex flex-col gap-4 mt-2">
           <div className="grid grid-cols-2 gap-2">
             <Button
@@ -77,26 +61,19 @@ const AudioProcessor = ({
               ABORT_STREAM
             </Button>
           </div>
-
-          <div className="flex flex-col gap-1">
-            <span className="text-[8px] text-matrix-ui tracking-tighter">
-              GAIN_CONTROL
-            </span>
-            <div className="h-1 bg-matrix-ui/20 w-full relative">
-              <div className="absolute top-0 left-0 h-full bg-matrix-glow w-[70%]" />
-            </div>
-          </div>
         </div>
 
-        {/* <button className="matrix-btn w-full py-2 text-xs border-matrix-bright text-matrix-bright bg-matrix-glow/10">
-          RE-DECODE_PACKET
-        </button> */}
-        <div className="flex-1 border border-matrix-ui/30 bg-black/40 p-3 relative overflow-hidden">
+        <div className="flex-1 border border-matrix-ui/30 bg-black/40 p-3 relative overflow-y-auto min-h-0 custom-scrollbar">
           <div className="absolute top-0 right-0 p-1 text-[7px] text-matrix-ui/40">
             PLAIN_TEXT_MODE
           </div>
 
-          <div className="text-[11px] leading-relaxed text-matrix-bright wrap-break-words">
+          <div
+            className={cn(
+              "text-[12px] leading-relaxed text-matrix-ui wrap-break-words",
+              decodedMessage && "text-matrix-bright",
+            )}
+          >
             {isDecoding ? (
               <span className="animate-pulse">_</span>
             ) : (
@@ -108,6 +85,22 @@ const AudioProcessor = ({
             )}
           </div>
         </div>
+      </div>
+
+      {/* Visualizer (Oscilloscope) */}
+      <div className="col-span-7 matrix-frame p-4 relative">
+        <h2 className="absolute -top-3 left-4 bg-matrix-bg px-2 text-[10px] tracking-widest text-matrix-glow">
+          OSCILLOSCOPE
+        </h2>
+        {isDecoding ? (
+          <div className="h-full flex items-center justify-center">
+            <span className="text-matrix-bright animate-pulse text-[9px] tracking-[0.3em]">
+              DOWNLOADING_ENCRYPTED_AUDIO...
+            </span>
+          </div>
+        ) : (
+          <Visualizer url={url} onReady={onReady} />
+        )}
       </div>
     </div>
   );
