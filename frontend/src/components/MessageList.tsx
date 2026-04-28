@@ -55,7 +55,7 @@ const MessageList = ({
           <div
             key={msg.id}
             className={cn(
-              "flex flex-col max-w-[85%] cursor-pointer",
+              "flex flex-col max-w-full cursor-pointer md:max-w-[85%]",
               isMe ? "self-end items-end" : "self-start items-start",
             )}
           >
