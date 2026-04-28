@@ -2,12 +2,14 @@ import {
   conversationQueryOptions,
   createConversation,
 } from "#/lib/conversations";
-import { profileQueryOptions } from "#/lib/profile";
+import { profileOptions, profileQueryOptions } from "#/lib/profile";
+import { useSocket } from "#/lib/SocketContext";
 import { cn } from "#/lib/utils";
-import { getToken } from "@clerk/tanstack-react-start";
+import type { Conversation } from "#/types";
+import { getToken, useUser } from "@clerk/tanstack-react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import React from "react";
+import React, { useEffect } from "react";
 
 const ConversationHistory = ({ activeId }: { activeId?: string }) => {
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -19,6 +21,16 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
   );
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { user } = useUser();
+  const { data: profile } = useQuery(
+    profileOptions(getToken, {
+      email: user?.primaryEmailAddress?.emailAddress || "",
+      username: user?.fullName || "RECON_USER",
+      avatarUrl: user?.imageUrl || "",
+    }),
+  );
+
+  const { client, connected } = useSocket();
 
   const handleClick = (conversationId: string) => {
     navigate({
@@ -37,14 +49,39 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
     },
   });
 
+  useEffect(() => {
+    if (!client || !connected || !profile?.id) return;
+
+    console.log("LINK_STABLE: Subscribing to topics...");
+
+    const subscription = client.subscribe(
+      `/topic/profiles/${profile.id}/conversations`,
+      (message) => {
+        const conversation = JSON.parse(message.body) as Conversation;
+        queryClient.setQueryData(
+          ["conversations"],
+          (old: Conversation[] | undefined) => {
+            const exists = old?.some((c) => c.id === conversation.id);
+            if (exists) return old;
+            return [conversation, ...(old || [])];
+          },
+        );
+      },
+    );
+
+    return () => {
+      if (client.active && client.connected) {
+        subscription.unsubscribe();
+      }
+    };
+  }, [connected, profile?.id]);
+
   if (conversationsLoading) {
     return (
       <div className="flex flex-col gap-2 p-4">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="animate-pulse text-[10px] text-matrix-ui">
-            LOADING_CONVERSATIONS{i}...
-          </div>
-        ))}
+        <div className="animate-pulse text-[10px] text-matrix-ui">
+          LOADING_CONVERSATIONS...
+        </div>
       </div>
     );
   }
