@@ -2,6 +2,7 @@ import { useDebounce } from "#/hooks/useDebounce";
 import {
   conversationQueryOptions,
   createConversation,
+  deleteConversation,
 } from "#/lib/conversations";
 import {
   getProfileFromUser,
@@ -15,6 +16,7 @@ import { getToken, useUser } from "@clerk/tanstack-react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import React, { useEffect } from "react";
+import { Trash2 } from "lucide-react";
 
 const ConversationHistory = ({ activeId }: { activeId?: string }) => {
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -41,7 +43,7 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
     });
   };
 
-  const mutation = useMutation({
+  const createMutation = useMutation({
     mutationFn: async (userId: string) =>
       await createConversation(getToken, userId),
     onSuccess: (newConversation) => {
@@ -51,21 +53,66 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
     },
   });
 
+  const handleConversationRemoval = (
+    conversationId: string,
+    activeConversationId: string,
+  ) => {
+    queryClient.removeQueries({ queryKey: ["messages", conversationId] });
+    queryClient.setQueryData(
+      ["conversations"],
+      (old: Conversation[] | undefined) =>
+        old?.filter((c) => c.id !== conversationId),
+    );
+
+    if (activeConversationId === conversationId) {
+      navigate({
+        to: "/dashboard",
+        search: (prev) => {
+          const { conversationId, ...rest } = prev;
+          return rest;
+        },
+        replace: true,
+      });
+    }
+  };
+
+  const deleteMutation = useMutation({
+    mutationFn: async (conversationId: string) =>
+      await deleteConversation(getToken, conversationId),
+    onSuccess: (_, conversationId) => {
+      handleConversationRemoval(conversationId, conversationId);
+    },
+    onError: (error) => {
+      console.error("Failed to delete conversation:", error);
+    },
+  });
+
   useEffect(() => {
     if (!client || !connected || !profile?.id) return;
 
     const subscription = client.subscribe(
       `/topic/profiles/${profile.id}/conversations`,
       (message) => {
-        const conversation = JSON.parse(message.body) as Conversation;
-        queryClient.setQueryData(
-          ["conversations"],
-          (old: Conversation[] | undefined) => {
-            const exists = old?.some((c) => c.id === conversation.id);
-            if (exists) return old;
-            return [conversation, ...(old || [])];
-          },
-        );
+        const { action, data: conversation } = JSON.parse(message.body) as {
+          action: string;
+          data: Conversation;
+        };
+
+        if (action === "DELETED") {
+          handleConversationRemoval(conversation.id, activeId as string);
+          return;
+        }
+
+        if (action === "CREATED") {
+          queryClient.setQueryData(
+            ["conversations"],
+            (old: Conversation[] | undefined) => {
+              const exists = old?.some((c) => c.id === conversation.id);
+              if (exists) return old;
+              return [conversation, ...(old || [])];
+            },
+          );
+        }
       },
     );
 
@@ -74,7 +121,7 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
         subscription.unsubscribe();
       }
     };
-  }, [connected, profile?.id]);
+  }, [connected, profile?.id, activeId, handleConversationRemoval]);
 
   if (conversationsLoading) {
     return (
@@ -114,7 +161,7 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
             {searchResults?.map((user) => (
               <button
                 key={user.id}
-                onClick={() => mutation.mutate(user.id)}
+                onClick={() => createMutation.mutate(user.id)}
                 className="text-left p-2 border border-transparent hover:border-matrix-glow hover:bg-matrix-glow/10 group"
               >
                 <div className="text-[11px] text-matrix-bright">
@@ -133,20 +180,26 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
             {conversations?.map((conversation) => (
               <li
                 key={conversation.id}
-                className={cn(
-                  "flex justify-between items-center group hover:bg-matrix-ui/40 p-1 group",
-                  activeId === conversation.id &&
-                    "bg-matrix-glow/20 hover:bg-matrix-glow/20",
-                )}
+                className={cn("flex justify-between items-center")}
               >
                 <button
-                  className="text-[10px] group-hover:text-white flex items-center gap-1 cursor-pointer"
+                  className={cn(
+                    "text-[10px] flex items-center gap-1 cursor-pointer p-1 hover:bg-matrix-ui/40 hover:text-white",
+                    activeId === conversation.id &&
+                      "bg-matrix-glow/20 hover:bg-matrix-glow/20",
+                  )}
                   onClick={() => handleClick(conversation.id)}
                 >
                   <span className="text-sm tracking-tighter">
                     [{conversation.userA.username} -{" "}
                     {formatDateTime(conversation.createdAt)}]
                   </span>
+                </button>
+                <button
+                  className="p-1 bg-matrix-glow/20 border-0 cursor-pointer hover:text-white"
+                  onClick={() => deleteMutation.mutate(conversation.id)}
+                >
+                  <Trash2 size={20} />
                 </button>
               </li>
             ))}
