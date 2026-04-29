@@ -4,7 +4,7 @@
 :root {
   /* Den heliga treenigheten av Matrix-färger */
   --matrix-bg: #000a00; /* Svart bakgrund */
-  --matrix-ui-dark: #148114; /* Mörkgrön för ramar/inaktiva element */
+  --matrix-ui-dark: #158b15; /* Mörkgrön för ramar/inaktiva element */
   --matrix-glow: #00ff41; /* Lysande grön för text/signaler */
 
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
