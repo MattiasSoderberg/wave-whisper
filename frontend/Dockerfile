@@ -31,6 +31,7 @@ WORKDIR /app
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package*.json ./
 
+ENV PORT=8080
 EXPOSE 8080
 
 CMD ["node", "dist/server/server.js"]
