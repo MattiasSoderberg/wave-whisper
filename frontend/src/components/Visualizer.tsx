@@ -16,7 +16,8 @@ const Visualizer = ({ url, onReady }: VisualizerProps) => {
       container: containerRef.current,
       waveColor: "#003b11",
       progressColor: "#00ff41",
-      cursorColor: "#d1ffd7",
+      cursorWidth: 2,
+      cursorColor: "#00ff41",
       height: 100,
       barWidth: 2,
       normalize: true,
@@ -24,7 +25,6 @@ const Visualizer = ({ url, onReady }: VisualizerProps) => {
     });
 
     ws.on("ready", () => onReady(ws));
-    ws.on("finish", () => ws.setTime(0));
 
     return () => ws.destroy();
   }, [url]);
