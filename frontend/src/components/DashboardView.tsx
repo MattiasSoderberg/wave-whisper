@@ -177,7 +177,7 @@ const DashboardView = () => {
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyDown={handleKeyDown}
                     disabled={!conversationId || mutation.isPending}
-                    className="matrix-input h-16 w-full flex-1 text-xs resize-none bg-black/50 custom-scrollbar disabled:opacity-80"
+                    className="matrix-input h-16 w-full flex-1 text-xs resize-none bg-black/50 custom-scrollbar disabled:opacity-50"
                     placeholder={
                       conversationId
                         ? "ENTER_TEXT_TO_ENCRYPT..."
@@ -188,14 +188,14 @@ const DashboardView = () => {
                   <Button
                     onClick={handleSend}
                     disabled={!conversationId || !inputText.trim()}
-                    className="disabled:opacity-30 disabled:cursor-default"
+                    className="disabled:opacity-25 disabled:cursor-default"
                   >
                     SEND
                   </Button>
                 </div>
 
                 <div className="flex gap-2 items-center">
-                  <div className="flex-1 h-3 border border-matrix-ui/60 flex items-center px-4 relative overflow-hidden bg-matrix-ui/5 md:h-4 lg:h-5">
+                  <div className="flex-1 h-3 border border-matrix-ui/50 flex items-center px-4 relative overflow-hidden bg-matrix-ui/5 md:h-4 lg:h-5">
                     <div
                       className={cn(
                         "bg-matrix-glow/20 h-full absolute block left-0 top-0 transition-all duration-1000 border-0 border-matrix-glow/50",
