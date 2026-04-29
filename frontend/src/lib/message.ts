@@ -27,9 +27,12 @@ export const fetchMessageWithAudioBlob = async (
   }
   const byteArray = new Uint8Array(byteNumbers);
   const blob = new Blob([byteArray], { type: "audio/wav" });
+  const { decodedMessage } = data;
 
   return {
-    decodedMessage: data.decodedMessage,
+    decodedMessage: decodedMessage
+      .trim()
+      .substring(0, decodedMessage.trim().length - 1),
     blobUrl: URL.createObjectURL(blob),
   };
 };
