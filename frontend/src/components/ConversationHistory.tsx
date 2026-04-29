@@ -152,9 +152,7 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
             ))}
           </ul>
         ) : (
-          <div className="h-full flex justify-center mt-16 text-matrix-ui animate-pulse text-xs">
-            NO_CONVERSATIONS_FOUND...
-          </div>
+          <div className="loading-text">NO_CONVERSATIONS_FOUND...</div>
         )}
       </div>
     </section>
