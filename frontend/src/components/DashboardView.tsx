@@ -6,11 +6,12 @@ import { sendMessage } from "#/lib/conversations";
 import { fetchMessageWithAudioBlob } from "#/lib/message";
 import { cn } from "#/lib/utils";
 import { useAuth, useUser } from "@clerk/tanstack-react-start";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "#/hooks/useWindowSize";
 import { useSocket } from "#/lib/SocketContext";
+import { getProfileFromUser, profileOptions } from "#/lib/profile";
 
 const routeApi = getRouteApi("/dashboard");
 
@@ -31,6 +32,9 @@ const DashboardView = () => {
   const width = useWindowSize();
   const isDesktop = width >= 1024;
   const { client } = useSocket();
+  const { data: profile } = useQuery(
+    profileOptions(getToken, getProfileFromUser(user)),
+  );
 
   useEffect(() => {
     if (isDesktop) {
@@ -129,7 +133,7 @@ const DashboardView = () => {
       <header className="flex justify-between items-center text-[10px] tracking-[0.4em] text-matrix-glow border-b border-matrix-ui pb-2 shrink-0 md:text-[11px]">
         <span className="hidden sm:inline">
           WAVE_WHISPER //<span className="hidden md:inline"> OPERATOR: </span>
-          <span className="block md:inline">{user?.fullName}</span>
+          <span className="block md:inline">{profile?.username}</span>
         </span>
         <Button onClick={handleSignOut} className="text-[9px] md:text-[11px]">
           <span className="block md:inline">TERMINATE_</span>
@@ -191,10 +195,10 @@ const DashboardView = () => {
                 </div>
 
                 <div className="flex gap-2 items-center">
-                  <div className="flex-1 h-3 border border-matrix-ui flex items-center px-4 relative overflow-hidden bg-matrix-ui/5 md:h-4 lg:h-5">
+                  <div className="flex-1 h-3 border border-matrix-ui/60 flex items-center px-4 relative overflow-hidden bg-matrix-ui/5 md:h-4 lg:h-5">
                     <div
                       className={cn(
-                        "bg-matrix-glow/30 h-full absolute block left-0 top-0 transition-all duration-1000 border-none border-matrix-glow",
+                        "bg-matrix-glow/20 h-full absolute block left-0 top-0 transition-all duration-1000 border-0 border-matrix-glow/50",
                         mutation.isPending
                           ? "w-full border-r animate-pulse"
                           : "w-[0%]",
@@ -205,7 +209,7 @@ const DashboardView = () => {
                     />
                     <span
                       className={cn(
-                        "z-10 text-[6px] tracking-[0.3em] text-matrix-ui lg:text-[9px]",
+                        "z-10 text-[6px] tracking-[0.3em] text-matrix-ui/60 lg:text-[9px]",
                         mutation.isPending && "text-matrix-glow",
                       )}
                     >
@@ -222,7 +226,7 @@ const DashboardView = () => {
               {conversationId ? (
                 <MessageList
                   conversationId={conversationId}
-                  currentUserId={user?.id || ""}
+                  currentUserId={profile?.id}
                   selectedMessageId={selectedMessageId}
                   onSelectMessage={handleSelectMessage}
                 />
