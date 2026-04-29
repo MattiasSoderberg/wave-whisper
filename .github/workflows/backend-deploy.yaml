@@ -57,3 +57,4 @@ jobs:
             SUPABASE_URL=${{ vars.SUPABASE_URL }}
             SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}
             SUPABASE_BUCKET=${{ vars.SUPABASE_BUCKET }}
+            ALLOWED_ORIGINS=${{ vars.ALLOWED_ORIGINS }}
