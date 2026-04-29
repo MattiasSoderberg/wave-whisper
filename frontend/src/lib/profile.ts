@@ -1,5 +1,5 @@
 import type { Profile } from "#/types";
-import { type GetToken } from "@clerk/shared/types";
+import { type GetToken, type UserResource } from "@clerk/shared/types";
 import { createApiClient } from "./api-client";
 import { queryOptions } from "@tanstack/react-query";
 
@@ -19,6 +19,14 @@ export const searchProfiles = async (getToken: GetToken, query: string) => {
   const result = await api<Profile[]>(`/api/profiles/search?query=${query}`);
 
   return result;
+};
+
+export const getProfileFromUser = (user: UserResource | null | undefined) => {
+  return {
+    email: user?.primaryEmailAddress?.emailAddress || "",
+    username: user?.fullName || "",
+    avatarUrl: user?.imageUrl || "",
+  } as Omit<Profile, "id">;
 };
 
 export const profileOptions = (
