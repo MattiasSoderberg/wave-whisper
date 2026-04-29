@@ -1,4 +1,4 @@
-import { profileOptions } from "#/lib/profile";
+import { getProfileFromUser, profileOptions } from "#/lib/profile";
 import { useAuth, useUser } from "@clerk/tanstack-react-start";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import DashboardView from "#/components/DashboardView";
@@ -20,14 +20,10 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function Dashboard() {
-  const { getToken, isLoaded: authLoaded, isSignedIn, signOut } = useAuth();
+  const { getToken, isLoaded: authLoaded, isSignedIn } = useAuth();
   const { user, isLoaded: userLoaded } = useUser();
   const { data: profile, isLoading: isSyncing } = useQuery(
-    profileOptions(getToken, {
-      email: user?.primaryEmailAddress?.emailAddress || "",
-      username: user?.fullName || "RECON_USER",
-      avatarUrl: user?.imageUrl || "",
-    }),
+    profileOptions(getToken, getProfileFromUser(user)),
   );
 
   if (authLoaded && !isSignedIn) {
