@@ -24,12 +24,13 @@ ENV CLERK_SIGN_OUT_FORCE_REDIRECT_URL=${CLERK_SIGN_OUT_FORCE_REDIRECT_URL}
 
 RUN npm run build
 
-FROM nginx:alpine
+FROM node:24-alpine
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+WORKDIR /app
 
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package*.json ./
 
-EXPOSE 8080
+EXPOSE 4173
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "./dist/server/server.js"]
