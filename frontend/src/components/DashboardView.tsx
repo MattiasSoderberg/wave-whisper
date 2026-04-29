@@ -126,21 +126,18 @@ const DashboardView = () => {
 
   return (
     <div className="flex flex-col h-screen p-2 gap-4 max-w-[1600px] mx-auto overflow-hidden md:p-6">
-      <header className="flex justify-between items-center text-[10px] tracking-[0.4em] text-matrix-glow border-b border-matrix-ui pb-2 shrink-0">
-        <span>
+      <header className="flex justify-between items-center text-[10px] tracking-[0.4em] text-matrix-glow border-b border-matrix-ui pb-2 shrink-0 md:text-[11px]">
+        <span className="hidden sm:inline">
           WAVE_WHISPER //<span className="hidden md:inline"> OPERATOR: </span>
           <span className="block md:inline">{user?.fullName}</span>
         </span>
-        <Button
-          onClick={handleSignOut}
-          className="text-[9px] py-1 hidden lg:inline-block"
-        >
+        <Button onClick={handleSignOut} className="text-[9px] md:text-[11px]">
           <span className="block md:inline">TERMINATE_</span>
           <span className="block md:inline">SESSION</span>
         </Button>
         <Button
           onClick={toggleMenu}
-          className="group text-[9px] py-1 px-2 lg:hidden"
+          className="group text-[9px] px-2 lg:hidden"
         >
           <div className="flex flex-col gap-1">
             <div className="w-5 h-1 border-none bg-matrix-glow group-hover:bg-matrix-bg" />
@@ -150,14 +147,14 @@ const DashboardView = () => {
         </Button>
       </header>
 
-      <div className="flex-1 flex gap-6 min-h-0 relative">
+      <div className="flex-1 flex gap-6 min-h-0 relative mt-2">
         {" "}
         <div
           className={cn(
             "flex flex-col",
             isDesktop
               ? "relative shrink-0 w-96"
-              : "w-[85%] max-w-96 fixed left-0 top-5 bottom-0 -translate-x-full transition-all duration-300 z-50",
+              : "w-[85%] max-w-96 fixed left-0 top-4 bottom-0 -translate-x-full transition-all duration-300 z-50",
             !isDesktop && showMenu && "translate-x-0",
           )}
         >
@@ -194,19 +191,21 @@ const DashboardView = () => {
                 </div>
 
                 <div className="flex gap-2 items-center">
-                  <div className="flex-1 h-3 border border-matrix-ui flex items-center px-4 relative overflow-hidden bg-matrix-ui/5">
+                  <div className="flex-1 h-3 border border-matrix-ui flex items-center px-4 relative overflow-hidden bg-matrix-ui/5 md:h-4 lg:h-5">
                     <div
                       className={cn(
-                        "bg-matrix-glow/30 h-full absolute block left-0 top-0 transition-all duration-1000 border-r border-matrix-glow",
-                        mutation.isPending ? "w-full animate-pulse" : "w-[0%]",
+                        "bg-matrix-glow/30 h-full absolute block left-0 top-0 transition-all duration-1000 border-none border-matrix-glow",
+                        mutation.isPending
+                          ? "w-full border-r animate-pulse"
+                          : "w-[0%]",
                         mutation.isSuccess
-                          ? "w-[0%] opacity-0"
+                          ? "w-[0%] border-none opacity-0"
                           : "block opacity-100",
                       )}
                     />
                     <span
                       className={cn(
-                        "z-10 text-[6px] tracking-[0.3em] text-matrix-ui",
+                        "z-10 text-[6px] tracking-[0.3em] text-matrix-ui lg:text-[9px]",
                         mutation.isPending && "text-matrix-glow",
                       )}
                     >
@@ -228,9 +227,7 @@ const DashboardView = () => {
                   onSelectMessage={handleSelectMessage}
                 />
               ) : (
-                <div className="h-full flex items-center justify-center text-matrix-ui animate-pulse text-xs">
-                  NO_CONVERSATION_SELECTED...
-                </div>
+                <div className="loading-text">NO_CONVERSATION_SELECTED...</div>
               )}
             </div>
           </div>
