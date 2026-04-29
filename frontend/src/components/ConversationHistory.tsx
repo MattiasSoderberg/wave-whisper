@@ -5,7 +5,7 @@ import {
 } from "#/lib/conversations";
 import { profileOptions, profileQueryOptions } from "#/lib/profile";
 import { useSocket } from "#/lib/SocketContext";
-import { cn } from "#/lib/utils";
+import { cn, formatDateTime } from "#/lib/utils";
 import type { Conversation } from "#/types";
 import { getToken, useUser } from "@clerk/tanstack-react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -144,8 +144,8 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
                   onClick={() => handleClick(conversation.id)}
                 >
                   <span className="text-sm tracking-tighter">
-                    [0{conversation.id}. {conversation.userA.username} -{" "}
-                    {conversation.createdAt}]
+                    [{conversation.userA.username} -{" "}
+                    {formatDateTime(conversation.createdAt)}]
                   </span>
                 </button>
               </li>
