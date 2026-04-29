@@ -3,7 +3,11 @@ import {
   conversationQueryOptions,
   createConversation,
 } from "#/lib/conversations";
-import { profileOptions, profileQueryOptions } from "#/lib/profile";
+import {
+  getProfileFromUser,
+  profileOptions,
+  profileQueryOptions,
+} from "#/lib/profile";
 import { useSocket } from "#/lib/SocketContext";
 import { cn, formatDateTime } from "#/lib/utils";
 import type { Conversation } from "#/types";
@@ -25,11 +29,7 @@ const ConversationHistory = ({ activeId }: { activeId?: string }) => {
   const navigate = useNavigate();
   const { user } = useUser();
   const { data: profile } = useQuery(
-    profileOptions(getToken, {
-      email: user?.primaryEmailAddress?.emailAddress || "",
-      username: user?.fullName || "RECON_USER",
-      avatarUrl: user?.imageUrl || "",
-    }),
+    profileOptions(getToken, getProfileFromUser(user)),
   );
 
   const { client, connected } = useSocket();
