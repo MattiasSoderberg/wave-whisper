@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import type WaveSurfer from "wavesurfer.js";
 import Visualizer from "./Visualizer";
 import Button from "./Button";
@@ -22,6 +22,11 @@ const AudioProcessor = ({
   const onReady = (ws: WaveSurfer) => {
     setWaveSurfer(ws);
     setIsPlaying(false);
+
+    ws.on("finish", () => {
+      setIsPlaying(false);
+      ws.setTime(0);
+    });
   };
 
   const handlePlayPause = () => {
@@ -37,6 +42,14 @@ const AudioProcessor = ({
       setIsPlaying(false);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (wavesurfer) {
+        wavesurfer.unAll();
+      }
+    };
+  }, [wavesurfer]);
 
   return (
     <div className="grid grid-cols-12 gap-6 h-52 relative">
