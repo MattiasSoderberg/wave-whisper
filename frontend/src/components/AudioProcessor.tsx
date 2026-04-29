@@ -63,10 +63,19 @@ const AudioProcessor = ({
             <Button
               onClick={handlePlayPause}
               disabled={!url}
-              className="text-[10px] disabled:opacity-30 disabled:cursor-default"
+              className={cn(
+                "text-[10px] disabled:opacity-30 disabled:cursor-default",
+                isPlaying && "bg-matrix-glow text-matrix-bg",
+              )}
             >
               {isPlaying ? (
-                <Pause size={14} className="fill-matrix-glow" />
+                <Pause
+                  size={14}
+                  className={cn(
+                    "fill-matrix-glow",
+                    isPlaying && "fill-matrix-bg",
+                  )}
+                />
               ) : (
                 <Play size={14} className="fill-matrix-glow" />
               )}
