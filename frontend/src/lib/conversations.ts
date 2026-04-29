@@ -29,6 +29,17 @@ export const fetchConversationMessages = async (
   return await api<Message[]>(`/api/conversations/${conversationId}/messages`);
 };
 
+export const deleteConversation = async (
+  getToken: GetToken,
+  conversationId: string,
+) => {
+  const api = createApiClient(getToken);
+  await api(`/api/conversations/${conversationId}`, {
+    method: "DELETE",
+  });
+  return conversationId;
+};
+
 export const sendMessage = async (
   getToken: GetToken,
   conversationId: string,
