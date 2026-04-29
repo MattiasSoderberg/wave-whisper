@@ -5,12 +5,20 @@ import DashboardView from "#/components/DashboardView";
 import { SocketProvider } from "#/lib/SocketContext";
 import { useQuery } from "@tanstack/react-query";
 import type { Profile } from "#/types";
+import { getClerkAuth } from "#/lib/clerkAuth";
 
 interface DashboardSearch {
   conversationId?: string;
 }
 
 export const Route = createFileRoute("/dashboard")({
+  beforeLoad: async () => {
+    const { userId } = await getClerkAuth();
+
+    if (!userId) {
+      throw redirect({ to: "/" });
+    }
+  },
   validateSearch: (search: Record<string, unknown>): DashboardSearch => {
     return {
       conversationId: search.conversationId as string | undefined,
@@ -25,10 +33,6 @@ function Dashboard() {
   const { data: profile, isLoading: isSyncing } = useQuery(
     profileOptions(getToken, getProfileFromUser(user)),
   );
-
-  if (authLoaded && !isSignedIn) {
-    throw redirect({ to: "/" });
-  }
 
   if (!authLoaded || !isSignedIn) {
     return;
