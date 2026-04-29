@@ -2,9 +2,9 @@ package se.salt.matte.backend.domain.services;
 
 import jakarta.transaction.Transactional;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import se.salt.matte.backend.domain.event.ConversationCreatedEvent;
+import se.salt.matte.backend.domain.event.ConversationDeletedEvent;
 import se.salt.matte.backend.domain.event.MessageEncodedEvent;
 import se.salt.matte.backend.domain.models.Conversation;
 import se.salt.matte.backend.domain.models.Message;
@@ -64,9 +64,13 @@ public class ConversationService {
         return conversationRepository.findByUserAOrUserBOrderByCreatedAtDesc(profile, profile);
     }
 
-    public void deleteConversation(UUID id) {
+    @Transactional
+    public void deleteConversation(UUID id, String senderEmail) {
         Conversation conversation = conversationRepository.findById(id)
                 .orElseThrow(ConversationNotFoundException::new);
+        UUID receiverId = conversation.getUserA().getEmail().equals(senderEmail) ? conversation.getUserB().getId() : conversation.getUserA().getId();
+
+        eventPublisher.publishEvent(new ConversationDeletedEvent(conversation, receiverId));
         conversationRepository.delete(conversation);
     }
 
