@@ -32,7 +32,7 @@ const Visualizer = ({ url, onReady }: VisualizerProps) => {
   return (
     <div className="w-full h-full flex flex-col justify-center">
       {!url ? (
-        <div className="text-[9px] text-matrix-ui text-center animate-pulse">
+        <div className="text-[9px] text-matrix-ui text-center">
           AWAITING_SIGNAL_SOURCE...
         </div>
       ) : (
