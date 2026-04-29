@@ -42,8 +42,8 @@ public class ConversationController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteConversation(@PathVariable UUID id) {
-        conversationService.deleteConversation(id);
+    public void deleteConversation(@PathVariable UUID id, @AuthenticationPrincipal Jwt principal) {
+        conversationService.deleteConversation(id, principal.getClaimAsString("email"));
     }
 
     @GetMapping("/{id}/messages")
