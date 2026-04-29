@@ -68,7 +68,8 @@ public class ConversationService {
     public void deleteConversation(UUID id, String senderEmail) {
         Conversation conversation = conversationRepository.findById(id)
                 .orElseThrow(ConversationNotFoundException::new);
-        UUID receiverId = conversation.getUserA().getEmail().equals(senderEmail) ? conversation.getUserB().getId() : conversation.getUserA().getId();
+        UUID receiverId = conversation.getUserA().getEmail().equals(senderEmail)
+                ? conversation.getUserB().getId() : conversation.getUserA().getId();
 
         eventPublisher.publishEvent(new ConversationDeletedEvent(conversation, receiverId));
         conversationRepository.delete(conversation);
