@@ -19,6 +19,11 @@ export const createApiClient = (getToken: GetToken) => {
       );
     }
 
+    if (response.status === 204) {
+      // No content to return
+      return {} as T;
+    }
+
     return response.json();
   };
 };
