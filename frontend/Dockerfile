@@ -28,11 +28,9 @@ FROM node:24-alpine
 
 WORKDIR /app
 
-COPY --from=build /app/.output ./.output
+COPY --from=build /app/dist ./dist
 COPY --from=build /app/package*.json ./
-
-ENV PORT=8080
 
 EXPOSE 8080
 
-CMD ["node", ".output/server/server.mjs"]
+CMD ["node", "dist/server/server.js"]
