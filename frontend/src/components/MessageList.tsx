@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { cn } from "#/lib/utils";
+import { cn, formatDateTime } from "#/lib/utils";
 import { messagesQueryOptions } from "#/lib/conversations";
 import { useAuth } from "@clerk/tanstack-react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -61,37 +61,37 @@ const MessageList = ({
               isMe ? "self-end items-end" : "self-start items-start",
             )}
           >
-            <div className="flex gap-2 mb-1 text-[8px] tracking-widest uppercase">
+            <div className="flex gap-2 mb-1 text-[10px] tracking-widest uppercase">
               <span
                 className={cn(
-                  isMe ? "text-matrix-glow" : "text-matrix-ui",
-                  selectedMessageId === msg.id && "text-matrix-glow/60",
+                  isMe ? "text-matrix-glow/60" : "text-matrix-glow/80",
+                  selectedMessageId === msg.id && "text-matrix-glow",
                 )}
               >
-                {isMe ? "SOURCE_ORIGIN" : `SENDER: ${msg.sender.username}`}
+                {isMe ? "SOURCE_ORIGIN ME" : `SENDER: ${msg.sender.username}`}
               </span>
               <span
                 className={cn(
-                  "text-matrix-ui/80",
-                  selectedMessageId === msg.id && "text-matrix-glow/40",
+                  "text-matrix-glow/60",
+                  selectedMessageId === msg.id && "text-matrix-glow",
                 )}
               >
-                [{msg.createdAt}]
+                [{formatDateTime(msg.createdAt)}]
               </span>
             </div>
 
             <div
               onClick={() => msg.id && onSelectMessage(msg.id)}
               className={cn(
-                "px-3 py-2 border text-xs leading-relaxed",
+                "px-3 py-2 border text-sm leading-relaxed text-matrix-glow/80 hover:text-white",
                 isMe
-                  ? "border-matrix-glow bg-matrix-glow/5 text-matrix-bright shadow-[inset_0_0_10px_rgba(0,255,65,0.05)]"
-                  : "border-matrix-ui bg-matrix-ui/5 text-matrix-ui",
+                  ? "border-matrix-ui bg-matrix-glow/5 shadow-[inset_0_0_10px_rgba(0,255,65,0.05)]"
+                  : "border-matrix-ui/50 bg-matrix-glow/15 text-matrix-glow ",
                 selectedMessageId === msg.id &&
-                  "border-matrix-glow shadow-glow text-matrix-glow/80",
+                  "border-matrix-glow shadow-glow text-white",
               )}
             >
-              {msg.filePath}
+              {msg.filePath.split("/").slice(-1)[0]}{" "}
             </div>
           </div>
         );
